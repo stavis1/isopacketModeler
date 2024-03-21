@@ -23,6 +23,7 @@ args = parser.parse_args()
 from multiprocessing import Pool
 from multiprocessing import Manager
 import traceback
+import re
 
 import dill
 import numpy as np
@@ -48,8 +49,36 @@ psm_data = zip(*[psm_data[c] for c in psm_cols])
 psms = [psm(*d, args.label) for d in psm_data]
 
 # parse mzML file
+mzml = pymzml.run.Reader(args.mzml)
+ms1s = SortedList([(s.ID,s) for s in mzml])
 
+def process_psm(i):
+    if event.is_set():
+        return
+    try:
+        psm = psms[i]
+        scan_idx = ms1s.bisect_left((psm.scan,))
+        scans = ms1s[scan_idx - 3: scan_idx + 4]
+        psm.parse_scans(scans)
+        return psm
+    except:
+        traceback.print_exc()
+        event.set()
+
+#the manager contex, init_worker, and event allow the process pool to
+#terminate immediately when a worker encouters a fatal error
+with Manager() as manager:
+    shared_event = manager.Event()
+    
+    def init_worker(shared_event):
+        global event
+        event = shared_event
+
+    with Pool(args.cores, initializer=init_worker, initargs=(shared_event,)) as p:
+        psms = p.map(process_psm, range(len(psms)))
 
 # save data
-
+prefix = re.search(r'[/\\]([^.]+)(?i.mzml)\Z', args.mzml).group(1)
+with open(f'{args.outdir}{prefix}.psms.dill', 'wb') as dillfile:
+    dill.dump(psms, dillfile)
 
