@@ -143,6 +143,7 @@ class peptide:
         self.npeaks = max([len(n) for n in normed])
         self.obs = np.array([self.clean(np.concatenate((n, np.full(self.npeaks - len(n), np.nan)))) for n in normed])
         self.unenriched = self.reshape(psm.unenriched)
+        self.mz_err = np.array([self.reshape(p.mz_err) for p in self.psms])
 
     def clean(self, vals):
         vals = copy(vals)
@@ -191,6 +192,16 @@ class peptide:
         exp = (self.unenriched*(1-x[0])) + (exp*x[0])
         exp = exp/np.nansum(exp)
         return exp
+    
+    def preprocess(self):
+        mz = self.mz[0]
+        intensity = np.nanmean(self.obs, axis = 1)
+        intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
+        mz_std = np.nanstd(self.mz_err, axis = 1)
+        mz_std = mz_std/mz
+        mz_mean = np.nanmean(self.mz_err, axis = 1)
+        mz_mean = mz_mean/mz
+        return np.array([intensity, mz_std, mz_mean])
 
 
 
