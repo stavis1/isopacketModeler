@@ -24,9 +24,9 @@ from multiprocessing import Pool
 from multiprocessing import Manager
 import traceback
 import re
+import os
 
 import dill
-import numpy as np
 import pandas as pd
 import pymzml
 from sortedcontainers import SortedList
@@ -78,7 +78,7 @@ with Manager() as manager:
         psms = p.map(process_psm, range(len(psms)))
 
 # save data
-prefix = re.search(r'[/\\]([^.]+)(?i.mzml)\Z', args.mzml).group(1)
-with open(f'{args.outdir}{prefix}.psms.dill', 'wb') as dillfile:
+prefix = os.path.join(args.outdir, os.path.basename(args.mzml)[:-5])
+with open(f'{prefix}.psms.dill', 'wb') as dillfile:
     dill.dump(psms, dillfile)
 

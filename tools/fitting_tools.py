@@ -34,11 +34,11 @@ class hashabledict(dict):
     def omit(self, elm):
         newdict = self.copy()
         del newdict[elm]
-        return newdict
+        return hashabledict(newdict)
 
 @cache
 def isotope_packet(formula, charge):
-    return np.array(p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge))
+    return np.array([p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge)])
 
 def theo_packet(psm, enrichment):
     label_dist = binom.pmf(k = range(psm['formula'][psm['label']]),
@@ -62,8 +62,8 @@ class psm:
         self.charge = charge
         self.label = label
         self.proteins = proteins
-        self.mz = self.calc_mz()
         self.formula = self.calc_formula()
+        self.mz = self.calc_mz()
         subformula = self.formula.omit(self.label)
         self.background = isotope_packet(subformula, self.charge)
         unenriched = isotope_packet(self.formula, self.charge)
@@ -102,7 +102,7 @@ class psm:
         formula = hashabledict(formula)
         return formula
     
-    def mymin(peaks, mz):
+    def mymin(self, peaks, mz):
         idx = max(1,peaks.bisect_left((mz,)))
         query = min(peaks[idx-1:idx+1], 
                     key = lambda x: abs(x[0] - mz), 
