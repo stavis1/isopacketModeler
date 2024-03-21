@@ -132,19 +132,17 @@ class peptide:
     def __init__(self, psms):
         psm = psms[0]
         self.psms = psms
-        self.sequence = psm['sequence']
-        self.exp = re.search(r'Exp\d+', psm['file']).group()
-        self.tp = re.search(r'Exp\d+_[^_]+_(t\d+)', psm['file']).group(1)
-        self.label = psm['label']
-        self.formula = psm['formula']
-        self.mz = psm['mz'][self.label]
-        self.background = psm['background'][self.label]
-        normed = [np.asarray(p['intensity'][self.label])/np.nansum(p['intensity'][self.label]) for p in self.psms]
+        self.sequence = psm.sequence
+        self.exp = re.search(r'Exp\d+', psm.file).group()
+        self.tp = re.search(r'Exp\d+_[^_]+_(t\d+)', psm.file).group(1)
+        self.label = psm.label
+        self.formula = psm.formula
+        self.mz = psm.mz
+        self.background = psm.background
+        normed = [np.asarray(p.intensity)/np.nansum(p.intensity) for p in self.psms]
         self.npeaks = max([len(n) for n in normed])
         self.obs = np.array([self.clean(np.concatenate((n, np.full(self.npeaks - len(n), np.nan)))) for n in normed])
-        self.unenriched = psm['unenriched'][self.label]
-        if len(self.unenriched) < self.npeaks:
-            self.unenriched = np.concatenate((self.unenriched,np.zeros(self.npeaks - len()))) 
+        self.unenriched = self.reshape(psm.unenriched)
 
     def clean(self, vals):
         vals = copy(vals)
@@ -174,7 +172,6 @@ class peptide:
         badpts[0] = False
         vals[badpts] = np.full(len(vals),np.nan)[badpts]
         return vals
-        
     
     def reshape(self, arr):
         if len(arr) < self.npeaks:
