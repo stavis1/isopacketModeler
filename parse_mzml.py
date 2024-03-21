@@ -77,6 +77,9 @@ with Manager() as manager:
     with Pool(args.cores, initializer=init_worker, initargs=(shared_event,)) as p:
         psms = p.map(process_psm, range(len(psms)))
 
+#filter bad psms
+psms = [psm for psm in psms if psm.is_useable()]
+
 # save data
 prefix = os.path.join(args.outdir, os.path.basename(args.mzml)[:-5])
 with open(f'{prefix}.psms.dill', 'wb') as dillfile:
