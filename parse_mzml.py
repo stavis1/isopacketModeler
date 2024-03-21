@@ -21,6 +21,8 @@ parser.add_argument('-c','--cores', action = 'store', type = int, required = Fal
 args = parser.parse_args()
 
 from multiprocessing import Pool
+from multiprocessing import Manager
+import traceback
 
 import dill
 import numpy as np
@@ -31,10 +33,22 @@ from sortedcontainers import SortedList
 from tools.fitting_tools import psm
 
 # parse proteome discoverer PSM file
+file = args.mzml[:-5]
+psm_data = pd.read_csv(args.psms, sep = '\t')
+psm_data = psm_data[[f.startswith(file) for f in psm_data['Spectrum File']]]
+psm_cols = ['Annotated Sequence', 
+            'Modifications',
+            'Spectrum File', 
+            'First Scan',
+            'Charge', 
+            'Protein Accessions']
+psm_data = zip(*[psm_data[c] for c in psm_cols])
 
 # instantiate PSM objects
+psms = [psm(*d, args.label) for d in psm_data]
 
 # parse mzML file
+
 
 # save data
 

@@ -54,8 +54,9 @@ def beta_theo_packet(psm, a, b):
     return np.convolve(label_dist, psm['background'])
 
 class psm:
-    def __init__(self, sequence, file, scan, charge, label, proteins):
-        self.sequence = sequence
+    def __init__(self, sequence, mods, file, scan, charge, proteins, label):
+        self.sequence = self.clean_seq(sequence, mods)
+        self.mods = mods
         self.file = file
         self.scan = scan
         self.charge = charge
@@ -68,6 +69,15 @@ class psm:
         unenriched = isotope_packet(self.formula, self.charge)
         self.unenriched = np.concatenate((unenriched, np.zeros(len(self.mz)-len(unenriched))))
         return
+    
+    def clean_seq(self, seq, mods):
+        seq = re.search(r'\.([^\.]+)\.',seq).group(1)
+        if type(mods) == str:
+            if 'N-Term(Prot)(Met-loss)' in mods:
+                seq = seq[1:]
+            if 'Acetyl' in mods:
+                seq = '-' + seq[0].upper() + seq[1:]
+        return seq
     
     def calc_mz(self):
         mz_0 = isotopic_variants(self.formula, npeaks=1, charge = self.charge)[0].mz
