@@ -9,11 +9,11 @@ Created on Thu Mar 21 14:51:10 2024
 from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument('-m','--mzml', action = 'store', required = True,
-                    help = 'The .mzML file to parse.')
+                    help = 'The directory of .mzML files to parse.')
 parser.add_argument('-p','--psms', action = 'store', required = True,
                     help = 'The proteome discoverer PSMs .txt export.')
-parser.add_argument('-l','--label', action = 'store', required = True,
-                    help = 'The element symbol used for stable isotope labeling, i.e. C for 13C labeling.')
+parser.add_argument('-d','--design', action = 'store', required = True,
+                    help = 'The experimental design file.')
 parser.add_argument('-o','--outdir', action = 'store', required = True,
                     help = 'Directory for output files.')
 parser.add_argument('-c','--cores', action = 'store', type = int, required = False, default = 1,
@@ -23,7 +23,6 @@ args = parser.parse_args()
 from multiprocessing import Pool
 from multiprocessing import Manager
 import traceback
-import re
 import os
 
 import dill
