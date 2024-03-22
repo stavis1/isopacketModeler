@@ -198,25 +198,33 @@ class peptide:
         x = np.linspace(min(self.mz),max(self.mz),256)
         vec = np.interp(x, self.mz, vec)
         return vec
+    
+    def zero_fill(self, vec):
+        vec[np.isnan(vec)] = np.zeros(vec.shape)[np.isnan(vec)]
+        return vec
 
     def preprocess(self):
         mz = self.mz[0]
         intensity = np.nanmean(self.obs, axis = 0)
         intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
+        intensity = self.zero_fill(intensity)
         intensity = self.interp(intensity)
 
         mz_std = np.nanstd(self.mz_err, axis = 0)
         mz_std = mz_std/mz
+        mz_std = self.zero_fill(mz_std)
         mz_std = self.interp(mz_std)
 
         mz_mean = np.nanmean(self.mz_err, axis = 0)
         mz_mean = mz_mean/mz
+        mz_mean = self.zero_fill(mz_mean)
         mz_mean = self.interp(mz_mean)
         return np.array([intensity, mz_std, mz_mean])
 
     def preprocess_init(self):
         intensity = np.nanmean(self.obs, axis = 0)
         intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
+        intensity = self.zero_fill(intensity)
         intensity = self.interp(intensity)
         return intensity
     
