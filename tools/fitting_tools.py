@@ -195,14 +195,18 @@ class peptide:
     
     def preprocess(self):
         mz = self.mz[0]
-        intensity = np.nanmean(self.obs, axis = 1)
+        intensity = np.nanmean(self.obs, axis = 0)
         intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
-        mz_std = np.nanstd(self.mz_err, axis = 1)
+        mz_std = np.nanstd(self.mz_err, axis = 0)
         mz_std = mz_std/mz
-        mz_mean = np.nanmean(self.mz_err, axis = 1)
+        mz_mean = np.nanmean(self.mz_err, axis = 0)
         mz_mean = mz_mean/mz
         return np.array([intensity, mz_std, mz_mean])
 
+    def preprocess_init(self):
+        intensity = np.nanmean(self.obs, axis = 0)
+        intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
+        return intensity
 
 
 
