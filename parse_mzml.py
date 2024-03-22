@@ -41,7 +41,7 @@ meta_rows = zip(*[args.design[c] for c in meta_cols])
 rows = list(zip(args.design['file'], args.design['label'], meta_rows))
 
 #make duplicate control PSMs for each label used. This is for training the classifier model
-ctrl_idxs = [i for i,r in enumerate(rows) if not i]
+ctrl_idxs = [i for i,r in enumerate(rows) if not r[1]]
 ctrls = [rows[i] for i in ctrl_idxs]
 rows = [r for i,r in enumerate(rows) if not i in ctrl_idxs]
 labels = set(l for l in args.design['label'] if l)
