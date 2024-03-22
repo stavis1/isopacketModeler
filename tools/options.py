@@ -39,11 +39,14 @@ class options:
         self.dump()
     
     @classmethod
-    def alt_init(cls):
+    def alt_init(cls, argstr = ''):
         parser = ArgumentParser()
         parser.add_argument('-o', '--options', action = 'store', required = True,
                             help = 'Path to options file.')
-        args = parser.parse_args()
+        if argstr:
+            args = parser.parse_args(argstr.split())
+        else:
+            args = parser.parse_args()
         
         with open(args.options,'rb') as toml:
             options = tomllib.load(toml)
