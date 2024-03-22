@@ -66,6 +66,7 @@ class options:
 
         design = pd.read_csv(self.design_file, sep = '\t')
         design = design.fillna({'label':''})
+        design['control'] = [not l for l in design['label']]
         self.design = design
         
         extra_design = [f for f in design['file'] if f not in self.base_names]
