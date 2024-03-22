@@ -35,9 +35,18 @@ psm_cols = ['Annotated Sequence',
             'Protein Accessions']
 psm_data = zip(*[psm_data[c] for c in psm_cols])
 
-#map filenames to metadata
+#gather initialization data for PSMs
 meta_cols = [c for c in args.design.columns if c not in ('file', 'label')]
-rows = zip(args.design['file'], args.design['label'], zip(*[args.design[c] for c in meta_cols]))
+meta_rows = zip(*[args.design[c] for c in meta_cols])
+rows = list(zip(args.design['file'], args.design['label'], meta_rows))
+
+#make duplicate control PSMs for each label used. This is for training the classifier model
+ctrl_idxs = [i for i,r in enumerate(rows) if not i]
+ctrls = [rows[i] for i in ctrl_idxs]
+rows = [r for i,r in enumerate(rows) if not i in ctrl_idxs]
+labels = set(l for l in args.design['label'] if l)
+rows.extend([(r[0],l,r[2]) for l in labels for r in ctrls])
+
 meta_map = {f:(l,{c:m for c,m in zip(meta_cols, meta)}) for f,l,meta in rows}
 
 # instantiate PSM objects
