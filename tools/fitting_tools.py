@@ -196,7 +196,7 @@ class peptide:
     
     def interp(self, vec):
         x = np.linspace(min(self.mz),max(self.mz),256)
-        interp_i = np.interp(x, self.mz, vec)
+        vec = np.interp(x, self.mz, vec)
         return vec
 
     def preprocess(self):
