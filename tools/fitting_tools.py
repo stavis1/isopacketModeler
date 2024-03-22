@@ -134,12 +134,11 @@ class peptide:
         psm = psms[0]
         self.psms = psms
         self.sequence = psm.sequence
-        self.exp = re.search(r'Exp\d+', psm.file).group()
-        self.tp = re.search(r'Exp\d+_[^_]+_(t\d+)', psm.file).group(1)
         self.label = psm.label
         self.formula = psm.formula
         self.mz = psm.mz
         self.background = psm.background
+        self.metadata = psm.metadata
         normed = [np.asarray(p.intensity)/np.nansum(p.intensity) for p in self.psms]
         self.npeaks = max([len(n) for n in normed])
         self.obs = np.array([self.clean(np.concatenate((n, np.full(self.npeaks - len(n), np.nan)))) for n in normed])
