@@ -55,6 +55,7 @@ psm_data = zip(*[psm_data[c] for c in psm_cols])
 
 #map filenames to metadata
 design = pd.read_csv(args.design, sep = '\t')
+design = design.fillna({'label':''})
 meta_cols = [c for c in design.columns if c not in ('file', 'label')]
 rows = zip(design['file'], design['label'], zip(*[design[c] for c in meta_cols]))
 meta_map = {f:(l,{c:m for c,m in zip(meta_cols, meta)}) for f,l,meta in rows}
