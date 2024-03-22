@@ -10,8 +10,8 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument('-m','--mzml', action = 'store', required = True,
                     help = 'The directory of .mzML files to parse.')
-parser.add_argument('-p','--psms', action = 'store', required = True,
-                    help = 'The proteome discoverer PSMs .txt export.')
+parser.add_argument('-p','--psms', action = 'append', required = True,
+                    help = 'Use once per proteome discoverer PSMs .txt export.')
 parser.add_argument('-d','--design', action = 'store', required = True,
                     help = 'The experimental design file.')
 parser.add_argument('-o','--outdir', action = 'store', required = True,
@@ -32,10 +32,19 @@ from sortedcontainers import SortedList
 
 from tools.fitting_tools import psm
 
-# parse proteome discoverer PSM file
-file = args.mzml[:-5]
-psm_data = pd.read_csv(args.psms, sep = '\t')
-psm_data = psm_data[[f.startswith(file) for f in psm_data['Spectrum File']]]
+# parse proteome discoverer PSM files
+psm_data = []
+for file in args.psms:
+    psm_data.append(pd.read_csv(file, sep = '\t'))
+psm_data = pd.concat(psm_data)
+
+mzml_files = [f for f in os.listdir(args.mzml) if f.lower().endswith('.mzml')]
+good_names = set(f[:-5] for f in mzml_files)
+bad_names = set(f[:-4] for f in psm_data['Spectrum File'])
+if bad_names:
+    print('Warning: there are files listed in the PSM data that do not have a corresponding .mzML')
+    print('\n'.join(bad_names))
+psm_data = psm_data[[f[:-4] in good_names for f in psm_data['Spectrum File']]]
 psm_cols = ['Annotated Sequence', 
             'Modifications',
             'Spectrum File', 
@@ -44,22 +53,31 @@ psm_cols = ['Annotated Sequence',
             'Protein Accessions']
 psm_data = zip(*[psm_data[c] for c in psm_cols])
 
+#map filenames to metadata
+design = pd.read_csv(args.design, sep = '\t')
+meta_cols = [c for c in design.columns if c not in ('file', 'label')]
+rows = zip(design['file'], design['label'], zip(*[design[c] for c in meta_cols]))
+meta_map = {f:(l,{c:m for c,m in zip(meta_cols, meta)}) for f,l,meta in rows}
+
 # instantiate PSM objects
-psms = [psm(*d, args.label) for d in psm_data]
+psms = [psm(*d, *meta_map[d[2][:-4]]) for d in psm_data]
 
-# parse mzML file
-mzml = pymzml.run.Reader(args.mzml)
-ms1s = SortedList([(s.ID,s) for s in mzml])
-
-def process_psm(i):
+# parse mzML files
+def process_psm(file):
     if event.is_set():
         return
     try:
-        psm = psms[i]
-        scan_idx = ms1s.bisect_left((psm.scan,))
-        scans = ms1s[scan_idx - 3: scan_idx + 4]
-        psm.parse_scans(scans)
-        return psm
+        mzml = pymzml.run.Reader(f'{args.mzml}{file}')
+        ms1s = SortedList([(s.ID,s) for s in mzml])
+        results = []
+        no_ext = file[:-5]
+        subset_psms = [p for p in psms if p.file[:-4] == no_ext]
+        for p in subset_psms:
+            scan_idx = ms1s.bisect_left((p.scan,))
+            scans = ms1s[scan_idx - 3: scan_idx + 4]
+            p.parse_scans(scans)
+            results.append(p)
+        return results
     except:
         traceback.print_exc()
         event.set()
@@ -72,15 +90,15 @@ with Manager() as manager:
     def init_worker(shared_event):
         global event
         event = shared_event
-
+        
+    
     with Pool(args.cores, initializer=init_worker, initargs=(shared_event,)) as p:
-        psms = p.map(process_psm, range(len(psms)))
+        result_psms = p.map(process_psm, mzml_files)
 
-#filter bad psms
-psms = [psm for psm in psms if psm.is_useable()]
+#flatten results and filter bad psms
+psms = [p for file in result_psms for p in file if p.is_useable()]
 
 # save data
-prefix = os.path.join(args.outdir, os.path.basename(args.mzml)[:-5])
-with open(f'{prefix}.psms.dill', 'wb') as dillfile:
+with open(f'{args.outdir}psms.dill', 'wb') as dillfile:
     dill.dump(psms, dillfile)
 
