@@ -61,7 +61,7 @@ def process_psm(file):
         ms1s = SortedList([(s.ID,s) for s in mzml])
         results = []
         no_ext = os.path.basename(file)[:-5]
-        subset_psms = [p for p in psms if p.file[:-4] == no_ext]
+        subset_psms = [p for p in psms if p.base_name == no_ext]
         for p in subset_psms:
             scan_idx = ms1s.bisect_left((p.scan,))
             scans = ms1s[scan_idx - 3: scan_idx + 4]

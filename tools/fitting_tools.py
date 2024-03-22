@@ -58,6 +58,7 @@ class psm:
         self.sequence = self.clean_seq(sequence, mods)
         self.mods = mods
         self.file = file
+        self.base_name = file[:-4]
         self.scan = scan
         self.charge = charge
         self.proteins = proteins
@@ -207,7 +208,7 @@ class peptide:
         intensity = np.nanmean(self.obs, axis = 0)
         intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
         return intensity
-
+    
 
 
 
