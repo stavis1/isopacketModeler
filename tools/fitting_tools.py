@@ -54,14 +54,15 @@ def beta_theo_packet(psm, a, b):
     return np.convolve(label_dist, psm['background'])
 
 class psm:
-    def __init__(self, sequence, mods, file, scan, charge, proteins, label):
+    def __init__(self, sequence, mods, file, scan, charge, proteins, label, metadata):
         self.sequence = self.clean_seq(sequence, mods)
         self.mods = mods
         self.file = file
         self.scan = scan
         self.charge = charge
-        self.label = label
         self.proteins = proteins
+        self.label = label
+        self.metadata = metadata
         self.formula = self.calc_formula()
         self.mz = self.calc_mz()
         subformula = self.formula.omit(self.label)
