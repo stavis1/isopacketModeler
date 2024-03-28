@@ -79,8 +79,10 @@ class options:
         design_files = set(design['file'])
         extra_mzml = [f for f in self.base_names if f not in design_files]
         if extra_mzml:
-            print('Files in the mzML directory without corresponding design entry files:\n')
+            print('Files in the mzML directory without corresponding design entry files. These will be ignored:\n')
             print('\n'.join(extra_mzml))
+        self.mzml_files = [f for f in self.mzml_files if not f[:-5] in design_files]
+        self.base_names = [f for f in self.base_names if not f in design_files]
         
     def dump(self):
         import dill
