@@ -6,11 +6,11 @@ Created on Thu Mar 28 17:09:56 2024
 @author: 4vt
 """
 
-from tools.options import options
+from isoEnrich.options import options
 args = options()
 
-from tools.parse_mzml import parse_PD, initialize_psms, process_spectrum_data
-from tools.make_peptides import initialize_peptides
+from isoEnrich.parse_mzml import parse_PD, initialize_psms, process_spectrum_data
+from isoEnrich.make_peptides import initialize_peptides
 
 psm_data = parse_PD(args)
 psms = initialize_psms(args, psm_data)

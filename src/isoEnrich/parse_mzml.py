@@ -6,7 +6,7 @@ Created on Thu Mar 21 14:51:10 2024
 @author: 4vt
 """
 
-from tools.options import options
+from isoEnrich.options import options
 args = options()
 
 from multiprocessing import Pool

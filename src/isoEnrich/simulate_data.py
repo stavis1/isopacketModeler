@@ -6,7 +6,7 @@ Created on Fri Mar 22 16:42:24 2024
 @author: 4vt
 """
 
-from tools.options import options
+from isoEnrich.options import options
 args = options.alt_init('--options options.toml')
 
 import numpy as np

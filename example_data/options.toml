@@ -1,0 +1,6 @@
+working_directory = 'example_data/'
+design_file = 'design.tsv'
+mzml_dir = './'
+psms = ['PSMs.txt']
+cores = 8
+
