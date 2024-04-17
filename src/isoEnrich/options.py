@@ -35,29 +35,6 @@ class options:
         self.parse_design()
         if not 'cores' in self.__dict__.keys():
             self.cores = 1
-        
-        self.dump()
-    
-    @classmethod
-    def alt_init(cls, argstr = ''):
-        parser = ArgumentParser()
-        parser.add_argument('-o', '--options', action = 'store', required = True,
-                            help = 'Path to options file.')
-        if argstr:
-            args = parser.parse_args(argstr.split())
-        else:
-            args = parser.parse_args()
-        
-        with open(args.options,'rb') as toml:
-            options = tomllib.load(toml)
-        
-        os.chdir(options["working_directory"])
-        if os.path.exists('options.dill'):
-            import dill
-            with open('options.dill','rb') as dillfile:
-                return dill.load(dillfile)
-        else:
-            return cls()
 
     def find_mzml(self):
         mzml_files = [f for f in os.listdir(self.mzml_dir) if f.lower().endswith('.mzml')]
@@ -84,8 +61,3 @@ class options:
         self.mzml_files = [f for f in self.mzml_files if not f[:-5] in design_files]
         self.base_names = [f for f in self.base_names if not f in design_files]
         
-    def dump(self):
-        import dill
-        with open('options.dill', 'wb') as dillfile:
-            dill.dump(self, dillfile)
-
