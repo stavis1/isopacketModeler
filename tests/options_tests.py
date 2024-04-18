@@ -45,6 +45,12 @@ class optionsTestSuite(unittest.TestCase):
                 with self.assertRaises(InputError):
                     self.args.validate_inputs()
             setattr(self.args, attr, tmp)
+    
+    def test_mzml_identification(self):
+        with self.subTest(msg = 'Testing mzml list length'):
+            self.assertEqual(len(self.args.mzml_files), 2)
+        with self.subTest(msg = 'Testing basename list length'):
+            self.assertEqual(len(self.args.base_names), 2)
 
 if __name__ == '__main__':
     unittest.main()

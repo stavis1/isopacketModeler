@@ -100,6 +100,6 @@ class options:
             message = 'Files in the mzML directory without corresponding design entry files. These will be ignored:\n'
             message += '\n'.join(extra_mzml)
             self.logs.warning(message)
-        self.mzml_files = [f for f in self.mzml_files if not f[:-5] in design_files]
-        self.base_names = [f for f in self.base_names if not f in design_files]
+        self.mzml_files = [f for f in self.mzml_files if os.path.basename(f)[:-5] in design_files]
+        self.base_names = [f for f in self.base_names if f in design_files]
         
