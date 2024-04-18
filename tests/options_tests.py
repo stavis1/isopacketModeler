@@ -51,6 +51,11 @@ class optionsTestSuite(unittest.TestCase):
             self.assertEqual(len(self.args.mzml_files), 2)
         with self.subTest(msg = 'Testing basename list length'):
             self.assertEqual(len(self.args.base_names), 2)
+    
+    def test_mzml_exist(self):
+        for mzml in self.args.mzml_files:
+            with self.subTest(msg = f'Testing existance of {mzml}'):
+                self.assertTrue(os.path.exists(mzml))
 
 if __name__ == '__main__':
     unittest.main()
