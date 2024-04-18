@@ -1,4 +1,8 @@
-working_directory = 'tests/'
+working_directory = './'
+output_directory = 'temp/'
+overwrite = true
+log_file = 'test.log'
+log_level = 50
 design_file = 'design.tsv'
 mzml_dir = './'
 psms = ['PSMs.txt']

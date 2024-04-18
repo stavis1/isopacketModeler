@@ -11,8 +11,21 @@ import tomllib
 import os
 import logging
 
+class InputError(Exception):
+    pass
+
 class options:
     def __init__(self):
+        self.parse_args()
+        self.handle_working_directory()
+        self.logger_init()
+        self.validate_inputs()        
+        self.find_mzml()
+        self.parse_design()
+        if not 'cores' in self.__dict__.keys():
+            self.cores = 1
+    
+    def parse_args(self):
         parser = ArgumentParser()
         parser.add_argument('-o', '--options', action = 'store', required = True,
                             help = 'Path to options file.')
@@ -21,22 +34,21 @@ class options:
         with open(args.options,'rb') as toml:
             options = tomllib.load(toml)
         self.__dict__.update(options)
-        
-        self.logger_init()
-        self.validate_inputs()
-
+    
+    def handle_working_directory(self):
         os.chdir(self.working_directory)
-        self.find_mzml()
-        self.parse_design()
-        if not 'cores' in self.__dict__.keys():
-            self.cores = 1
-        
+        if not os.path.exists(self.output_directory):
+            os.mkdir(self.output_directory)      
+        else:
+            if not self.overwrite:
+                raise FileExistsError('An output directory with this name already exists and overwrite is false.')
+    
     def logger_init(self):
         self.logs = logging.getLogger('IsoEnrich')
         self.logs.setLevel(10)
         formatter = formatter = logging.Formatter('%(asctime)s | %(name)s | %(levelname)s: %(message)s')
 
-        logfile = logging.FileHandler(os.path.join(self.working_directory, self.log_file))
+        logfile = logging.FileHandler(self.log_file)
         logfile.setLevel(10)
         logfile.setFormatter(formatter)
         self.logs.addHandler(logfile)
@@ -47,15 +59,21 @@ class options:
         self.logs.addHandler(logstream)
     
     def validate_inputs(self):
+        #check if toml has all necessary information
         required = ['working_directory',
-                   'design_file',
-                   'mzml_dir',
-                   'psms']
+                    'output_directory',
+                    'overwrite',
+                    'log_file',
+                    'log_level',
+                    'design_file',
+                    'mzml_dir',
+                    'psms',
+                    'cores']
         problems = [r for r in required if not r in self.__dict__.keys()]
         if problems:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)
             self.logs.error(msg)
-            raise Exception()
+            raise InputError()
 
     def find_mzml(self):
         mzml_files = [f for f in os.listdir(self.mzml_dir) if f.lower().endswith('.mzml')]
@@ -74,14 +92,14 @@ class options:
         if extra_design:
             message = 'Files specified in the design file without corresponding .mzML files:\n'
             message += '\n'.join(extra_design)
-            self.logs.warn(message)
+            self.logs.warning(message)
 
         design_files = set(design['file'])
         extra_mzml = [f for f in self.base_names if f not in design_files]
         if extra_mzml:
             message = 'Files in the mzML directory without corresponding design entry files. These will be ignored:\n'
             message += '\n'.join(extra_mzml)
-            self.logs.warn(message)
+            self.logs.warning(message)
         self.mzml_files = [f for f in self.mzml_files if not f[:-5] in design_files]
         self.base_names = [f for f in self.base_names if not f in design_files]
         
