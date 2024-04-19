@@ -165,3 +165,4 @@ tests/*
 !tests/test.mzml
 !tests/design.tsv
 !tests/PSMs.txt
+!tests/*.mzML
