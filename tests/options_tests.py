@@ -9,7 +9,7 @@ import os
 import sys
 import unittest
 from shutil import rmtree
-from isoEnrich.options import options, InputError
+from isopacketModeler.options import options, InputError
 
 class optionsTestSuite(unittest.TestCase):
     def setUp(self):
