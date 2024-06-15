@@ -1,0 +1,19 @@
+channels:
+- defaults
+- conda-forge
+- bioconda
+dependencies:
+- python==3.11.9
+- pip
+- numpy
+- dill
+- matplotlib
+- numpy
+- pandas
+- scipy
+- sortedcontainers
+- tensorflow
+- pymzml
+- spyder
+- pip:
+  - brain-isotopic-distribution
