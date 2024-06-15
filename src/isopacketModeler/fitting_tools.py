@@ -18,11 +18,6 @@ from scipy.stats import binom, betabinom
 from sortedcontainers import SortedList
 
 
-path = os.path.abspath(__file__)[:-16]
-with open(path + 'AA_masses.txt', 'r') as tsv:
-    cols = tsv.readline().strip().split('\t')
-    aa_formula = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
-
 Δm = {'H':1.00627699,
       'C':1.00334999,
       'N':0.99704}
@@ -54,9 +49,8 @@ def beta_theo_packet(psm, a, b):
     return np.convolve(label_dist, psm['background'])
 
 class psm:
-    def __init__(self, sequence, mods, file, scan, charge, proteins, label, metadata):
-        self.sequence = self.clean_seq(sequence, mods)
-        self.mods = mods
+    def __init__(self, sequence, file, scan, charge, proteins, label, metadata, aa_formulae):
+        self.sequence = self.clean_seq(sequence)
         self.file = file
         self.base_name = file[:-4]
         self.scan = scan
@@ -70,15 +64,13 @@ class psm:
         self.background = isotope_packet(subformula, self.charge)
         unenriched = isotope_packet(self.formula, self.charge)
         self.unenriched = np.concatenate((unenriched, np.zeros(len(self.mz)-len(unenriched))))
+        with open(aa_formulae, 'r') as tsv:
+            cols = tsv.readline().strip().split('\t')
+            self.aa_formula = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
         return
     
-    def clean_seq(self, seq, mods):
-        seq = re.search(r'\.([^\.]+)\.',seq).group(1)
-        if type(mods) == str:
-            if 'N-Term(Prot)(Met-loss)' in mods:
-                seq = seq[1:]
-            if 'Acetyl' in mods:
-                seq = '-' + seq[0].upper() + seq[1:]
+    def clean_seq(self, seq):
+        seq = re.search(r'\A(?:[^\.]+\.)?([^\.]+)(?:\.[^\.]+)?\Z',seq).group(1)
         return seq
     
     def calc_mz(self):
@@ -96,8 +88,9 @@ class psm:
 
     def calc_formula(self):
         formula = defaultdict(lambda: 0)
-        for aa in self.sequence:
-            for k,v in aa_formula[aa].items():
+        residues = re.findall(r'[^\[](?:\[[^\]]+\])?', self.sequence)
+        for aa in residues:
+            for k,v in self.aa_formulae[aa].items():
                 formula[k] += v
         formula['H'] += 2
         formula['O'] += 1

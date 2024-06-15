@@ -166,6 +166,7 @@ tests/*
 !tests/design.tsv
 !tests/PSMs.txt
 !tests/*.mzML
+!tests/AA_formulae.tsv
 
 !env/dev.yml
 !env/run.yml

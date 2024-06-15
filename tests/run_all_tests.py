@@ -9,6 +9,7 @@ Created on Sat Jun 15 15:14:10 2024
 import unittest
 
 from options_tests import *
+from parser_tests import *
 
 if __name__ == '__main__':
     unittest.main()

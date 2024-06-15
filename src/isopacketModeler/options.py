@@ -22,8 +22,8 @@ class options:
         self.validate_inputs()        
         self.find_mzml()
         self.parse_design()
-        if not 'cores' in self.__dict__.keys():
-            self.cores = 1
+        if self.cores < 1:
+            self.cores = os.cpu_count()
     
     def parse_args(self):
         parser = ArgumentParser()
@@ -44,7 +44,7 @@ class options:
                 raise FileExistsError('An output directory with this name already exists and overwrite is false.')
     
     def logger_init(self):
-        self.logs = logging.getLogger('IsoEnrich')
+        self.logs = logging.getLogger('isopacketModeler')
         self.logs.setLevel(10)
         formatter = formatter = logging.Formatter('%(asctime)s | %(name)s | %(levelname)s: %(message)s')
 
@@ -68,7 +68,9 @@ class options:
                     'design_file',
                     'mzml_dir',
                     'psms',
-                    'cores']
+                    'cores',
+                    'AA_formulae',
+                    'PSM_headers']
         problems = [r for r in required if not r in self.__dict__.keys()]
         if problems:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)

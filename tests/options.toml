@@ -1,10 +1,46 @@
+#All paths must be relative to working_directory, or absolute.
 working_directory = './'
+
+#All results will be stored here, directory will be created if not extant
 output_directory = 'temp/'
+
+#If true any output files withing output_directory will be overwritten
 overwrite = true
-log_file = 'test.log'
+
+#This sets the amount of information printed to the console
+#10 displays the most information while 50 silences console logging
 log_level = 50
+#All logs will be written to log_file regardless of log_level
+log_file = 'test.log'
+
+#A TSV file defining the experimental design
+#see README.md for details
 design_file = 'design.tsv'
+
+#The top level directory under which all mzml files can be found.
+#path names in design_file must be relative to mzml_dir
 mzml_dir = './'
+
+#A list of tab separated files containing PSMs to be fit
 psms = ['PSMs.txt']
-cores = 8
+#The column names in the PSM file corresponding to:
+#peptide sequence, mzml file, scan #, charge, protein names, any other metadata you wish tracked
+#Column names must be listed in the above order regardless of their order in the PSM file.
+#The defaults listed here work for Proteome Discoverer PSM files.
+PSM_headers = ['Annotated Sequence',
+               'Spectrum File', 
+               'First Scan',
+               'Charge', 
+               'Protein Accessions']
+
+#The path to the TSV file which maps sinlge letter amino acid codes to molecular formulae
+#If you have modified amino acids please represent them as either single characters (any non whitespace character can be used)
+#or as the base amino acid followed by a bracketed modifier, e.g. S[79.9663]
+#Each modification should get its own row with the full molecular formula (not just the difference from the unmodified amino acid)
+#If you need elements not listed in the default file add a column with their elemental symbol as the header
+AA_formulae = 'AA_formulae.tsv'
+
+#the allowed number of CPU cores to use
+#0 means all available cores
+cores = 0
 

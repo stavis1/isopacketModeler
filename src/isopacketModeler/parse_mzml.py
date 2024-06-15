@@ -6,34 +6,31 @@ Created on Thu Mar 21 14:51:10 2024
 @author: 4vt
 """
 
-from isoEnrich.options import options
-args = options()
-
 from multiprocessing import Pool
 from multiprocessing import Manager
 import traceback
 import os
 
-import dill
 import pandas as pd
 import pymzml
 from sortedcontainers import SortedList
 
-from tools.fitting_tools import psm
+from isopacketModeler.fitting_tools import psm
 
-# parse proteome discoverer PSM files
-def parse_PD(args):
+# parse PSM files into a list of data tuples
+def parse_PSMs(args):
     psm_data = []
     for file in args.psms:
         psm_data.append(pd.read_csv(file, sep = '\t'))
     psm_data = pd.concat(psm_data)
     psm_data = psm_data[[f[:-4] in args.base_names for f in psm_data['Spectrum File']]]
-    psm_cols = ['Annotated Sequence', 
-                'Modifications',
+    psm_data = psm_data[args.PSM_headers]
+    psm_cols = ['Annotated Sequence',
                 'Spectrum File', 
                 'First Scan',
                 'Charge', 
-                'Protein Accessions']
+                'Protein Accessions'] + args.PSM_headers[5:]
+    psm_data.columns = psm_cols
     psm_data = zip(*[psm_data[c] for c in psm_cols])
     return psm_data
 
@@ -95,9 +92,4 @@ def process_spectrum_data(args, psms):
     #flatten results and filter bad psms
     psms = [p for file in result_psms for p in file if p.is_useable()]
     return psms
-
-# def save_psms(psms):
-#     # save data
-#     with open('psms.dill', 'wb') as dillfile:
-#         dill.dump(psms, dillfile)
 

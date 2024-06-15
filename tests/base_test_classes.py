@@ -8,7 +8,9 @@ Created on Thu Mar 28 17:52:16 2024
 import sys
 # import os
 import unittest
-from options import options
+import shutil
+
+from isopacketModeler.options import options
 
 
 class ParsedOptionsTestSuite(unittest.TestCase):
@@ -22,5 +24,6 @@ class ParsedOptionsTestSuite(unittest.TestCase):
     
     def tearDown(self):
         sys.argv = self.init_argv
-    
-        
+        shutil.rmtree('temp')
+        shutil.rmtree('tests.log')
+
