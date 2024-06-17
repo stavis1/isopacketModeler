@@ -57,10 +57,14 @@ def initialize_psms(args, psm_data):
     psms = [psm({k:v for k,v in zip(d[1].keys(), d[1].values)}) for d in psm_data.iterrows()]
     return psms
 
-# parse mzML files
-def process_psm(file):
+def read_mzml(file):
     mzml = pymzml.run.Reader(file)
     ms1s = SortedList([(s.ID,s) for s in mzml])
+    return ms1s
+
+# parse mzML files
+def process_psm(file):
+    ms1s = read_mzml(file)
     results = []
     no_ext = os.path.basename(file)[:-5]
     subset_psms = [p for p in PSM_list if p.base_name == no_ext]
