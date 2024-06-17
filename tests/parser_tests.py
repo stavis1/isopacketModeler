@@ -10,7 +10,7 @@ import unittest
 
 import pandas as pd
 
-from base_test_classes import ParsedOptionsTestSuite
+from base_test_classes import ParsedOptionsTestSuite, InitializedPSMsTestSuite
 from isopacketModeler.parse_mzml import parse_PSMs, initialize_psms, process_psm, process_spectrum_data
 
 class parsePSMsTestSuite(ParsedOptionsTestSuite):
@@ -29,20 +29,10 @@ class parsePSMsTestSuite(ParsedOptionsTestSuite):
             with self.subTest('Test that PSM tuples are the right length'):
                 self.assertEqual(psms.shape[1], 7)
 
-class initializePSMsTestSuite(ParsedOptionsTestSuite):
+class initializePSMsTestSuite(InitializedPSMsTestSuite):
     def test_label_file_PSMs_initialize_correctly(self):
-        N = 3
-        seq = ['TEST', 'A.TEST.A', 'TES[1.23]T']
-        file = ['test1.mzML']*N
-        scan = range(N)
-        charge = [2]*N
-        prots = ['TESTPROT']*N
-        psm_data = pd.DataFrame({'seq':seq,
-                                 'file':file,
-                                 'scan':scan,
-                                 'charge':charge,
-                                 'proteins':prots})
-        psms = initialize_psms(self.args, psm_data)
+        N = self.N
+        psms = self.psms
         with self.subTest('Check the number of PSMS'):
             self.assertEqual(len(psms), N)
         with self.subTest('Check sequence cleaning is correct'):
@@ -57,23 +47,16 @@ class initializePSMsTestSuite(ParsedOptionsTestSuite):
             self.assertListEqual([p.label for p in psms], ['C']*N)
     
     def test_control_PSMs_are_duplicated(self):
-        N = 3
-        seq = ['TEST', 'A.TEST.A', 'TES[1.23]T']
-        file = ['test2.mzML']*N
-        scan = range(N)
-        charge = [2]*N
-        prots = ['TESTPROT']*N
-        psm_data = pd.DataFrame({'seq':seq,
-                                 'file':file,
-                                 'scan':scan,
-                                 'charge':charge,
-                                 'proteins':prots})
+        psm_data = self.psm_data
+        psm_data['file'] = ['test2.mzML']*self.N
         psms = initialize_psms(self.args, psm_data)
         with self.subTest('Check the number of PSMS'):
-            self.assertEqual(len(psms), N*2)
+            self.assertEqual(len(psms), self.N*2)
         with self.subTest('Check both labels are used'):
-            self.assertListEqual([p.label for p in psms], ['N']*N + ['C']*N)
-            
+            self.assertListEqual([p.label for p in psms], ['C']*self.N + ['N']*self.N)
+
+# class PSMprocessorTestSuite(InitializedPSMsTestSuite):
+    
             
 if __name__ == '__main__':
     unittest.main()

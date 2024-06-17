@@ -8,9 +8,7 @@ Created on Thu Mar 21 14:51:10 2024
 
 from multiprocessing import Pool
 from multiprocessing import Manager
-import traceback
 import os
-import re
 from copy import copy
 
 import pandas as pd
@@ -44,7 +42,7 @@ def initialize_psms(args, psm_data):
     psm_data = pd.concat((psm_data, metadata), axis = 1)    
     
     #make duplicate control PSMs for each label used. This is for training the classifier model
-    labels = set([l for l in args.design['label'] if l])
+    labels = sorted(set([l for l in args.design['label'] if l]))
     controls = psm_data[psm_data['label'] == '']
     labeled = psm_data[psm_data['label'] != '']
     psm_data = [labeled]
@@ -61,39 +59,24 @@ def initialize_psms(args, psm_data):
 
 # parse mzML files
 def process_psm(file):
-    if event.is_set():
-        return
-    try:
-        mzml = pymzml.run.Reader(file)
-        ms1s = SortedList([(s.ID,s) for s in mzml])
-        results = []
-        no_ext = os.path.basename(file)[:-5]
-        subset_psms = [p for p in PSM_list if p.base_name == no_ext]
-        for p in subset_psms:
-            scan_idx = ms1s.bisect_left((p.scan,))
-            scans = ms1s[scan_idx - 3: scan_idx + 4]
-            p.parse_scans(scans)
-            results.append(p)
-        return results
-    except:
-        traceback.print_exc()
-        event.set()
+    mzml = pymzml.run.Reader(file)
+    ms1s = SortedList([(s.ID,s) for s in mzml])
+    results = []
+    no_ext = os.path.basename(file)[:-5]
+    subset_psms = [p for p in PSM_list if p.base_name == no_ext]
+    for p in subset_psms:
+        scan_idx = ms1s.bisect_left((p.scan,))
+        scans = ms1s[scan_idx - 3: scan_idx + 4]
+        p.parse_scans(scans)
+        results.append(p)
+    return results
 
 def process_spectrum_data(args, psms):
     global PSM_list
     PSM_list = psms
-    #the manager contex, init_worker, and event allow the process pool to
-    #terminate immediately when a worker encouters a fatal error
-    with Manager() as manager:
-        shared_event = manager.Event()
-        
-        def init_worker(shared_event):
-            global event
-            event = shared_event
-            
-        
-        with Pool(args.cores, initializer=init_worker, initargs=(shared_event,)) as p:
-            result_psms = p.map(process_psm, args.mzml_files)
+
+    with Pool(args.cores) as p:
+        result_psms = p.map(process_psm, args.mzml_files)
 
     #flatten results and filter bad psms
     psms = [p for file in result_psms for p in file if p.is_useable()]
