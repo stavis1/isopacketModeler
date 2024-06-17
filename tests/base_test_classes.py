@@ -6,7 +6,7 @@ Created on Thu Mar 28 17:52:16 2024
 @author: 4vt
 """
 import sys
-# import os
+import os
 import unittest
 import shutil
 
@@ -25,5 +25,6 @@ class ParsedOptionsTestSuite(unittest.TestCase):
     def tearDown(self):
         sys.argv = self.init_argv
         shutil.rmtree('temp')
-        shutil.rmtree('tests.log')
-
+        if os.path.exists('tests.log'):
+            shutil.rmtree('tests.log')
+        

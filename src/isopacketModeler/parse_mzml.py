@@ -10,12 +10,14 @@ from multiprocessing import Pool
 from multiprocessing import Manager
 import traceback
 import os
+import re
+from copy import copy
 
 import pandas as pd
 import pymzml
 from sortedcontainers import SortedList
 
-from isopacketModeler.fitting_tools import psm
+from isopacketModeler.fitting_tools import psm, base_name
 
 # parse PSM files into a list of data tuples
 def parse_PSMs(args):
@@ -23,34 +25,38 @@ def parse_PSMs(args):
     for file in args.psms:
         psm_data.append(pd.read_csv(file, sep = '\t'))
     psm_data = pd.concat(psm_data)
-    psm_data = psm_data[[f[:-4] in args.base_names for f in psm_data['Spectrum File']]]
+    ninit = psm_data.shape[0]
+    psm_data = psm_data[[base_name(f) in args.base_names for f in psm_data['Spectrum File']]]
+    if psm_data.shape[0] < ninit:
+        args.logs.warn('There were PSMs without a corresponding spectrum file in the design document. These will be ignored.')
     psm_data = psm_data[args.PSM_headers]
-    psm_cols = ['Annotated Sequence',
-                'Spectrum File', 
-                'First Scan',
-                'Charge', 
-                'Protein Accessions'] + args.PSM_headers[5:]
-    psm_data.columns = psm_cols
-    psm_data = zip(*[psm_data[c] for c in psm_cols])
+    psm_data.columns = ['seq', 'file', 'scan', 'charge', 'proteins'] + args.PSM_headers[5:]
     return psm_data
 
 def initialize_psms(args, psm_data):
     #gather initialization data for PSMs
-    meta_cols = [c for c in args.design.columns if c not in ('file', 'label')]
-    meta_rows = zip(*[args.design[c] for c in meta_cols])
-    rows = list(zip(args.design['file'], args.design['label'], meta_rows))
+    design_data = copy(args.design)
+    design_data.index = [base_name(f) for f in design_data['file']]
+
+    #add metadata to PSMs    
+    metadata = design_data.loc[[base_name(f) for f in psm_data['file']]]
+    metadata.index = range(metadata.shape[0])
+    psm_data = pd.concat((psm_data, metadata), axis = 1)    
     
     #make duplicate control PSMs for each label used. This is for training the classifier model
-    ctrl_idxs = [i for i,r in enumerate(rows) if not r[1]]
-    ctrls = [rows[i] for i in ctrl_idxs]
-    rows = [r for i,r in enumerate(rows) if not i in ctrl_idxs]
-    labels = set(l for l in args.design['label'] if l)
-    rows.extend([(r[0],l,r[2]) for l in labels for r in ctrls])
-    
-    meta_map = {f:(l,{c:m for c,m in zip(meta_cols, meta)}) for f,l,meta in rows}
+    labels = set([l for l in args.design['label'] if l])
+    controls = psm_data[psm_data['label'] == '']
+    labeled = psm_data[psm_data['label'] != '']
+    psm_data = [labeled]
+    for label in labels:
+        temp = controls.copy()
+        temp['label'] = [label]*temp.shape[0]
+        psm_data.append(temp)
+    psm_data = pd.concat(psm_data)
+    psm_data['aa_formulae'] = [args.AA_formulae]*psm_data.shape[0]
     
     # instantiate PSM objects
-    psms = [psm(*d, *meta_map[d[2][:-4]]) for d in psm_data]
+    psms = [psm({k:v for k,v in zip(d[1].keys(), d[1].values)}) for d in psm_data.iterrows()]
     return psms
 
 # parse mzML files

@@ -31,6 +31,9 @@ class hashabledict(dict):
         del newdict[elm]
         return hashabledict(newdict)
 
+def base_name(filename):
+    return re.search(r'\A(.+?)(?:\.[^\.]+)?\Z', filename).group(1)
+
 @cache
 def isotope_packet(formula, charge):
     return np.array([p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge)])
@@ -49,28 +52,29 @@ def beta_theo_packet(psm, a, b):
     return np.convolve(label_dist, psm['background'])
 
 class psm:
-    def __init__(self, sequence, file, scan, charge, proteins, label, metadata, aa_formulae):
-        self.sequence = self.clean_seq(sequence)
-        self.file = file
-        self.base_name = file[:-4]
-        self.scan = scan
-        self.charge = charge
-        self.proteins = proteins
-        self.label = label
-        self.metadata = metadata
+    def __init__(self, data):
+        self.__dict__.update(data)
+        self.sequence = self.clean_seq(self.seq)
+        self.base_name = base_name(self.file)
+
+        with open(self.aa_formulae, 'r') as tsv:
+            cols = tsv.readline().strip().split('\t')
+            self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
         self.formula = self.calc_formula()
         self.mz = self.calc_mz()
         subformula = self.formula.omit(self.label)
         self.background = isotope_packet(subformula, self.charge)
         unenriched = isotope_packet(self.formula, self.charge)
         self.unenriched = np.concatenate((unenriched, np.zeros(len(self.mz)-len(unenriched))))
-        with open(aa_formulae, 'r') as tsv:
-            cols = tsv.readline().strip().split('\t')
-            self.aa_formula = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
         return
     
     def clean_seq(self, seq):
-        seq = re.search(r'\A(?:[^\.]+\.)?([^\.]+)(?:\.[^\.]+)?\Z',seq).group(1)
+        #The regex excludes non bracket characters at the beginning or end of the string that are demarcated from 
+        #the middle with a period, e.g. T.ES.T -> ES, this allows it to work with Proteome discoverer annotated sequences.
+        #The capturing group in the middle grabs a sequence of residues. These residues start with a character that is
+        #neither whitespace nor an open bracket and are optionally followed by an arbitrary number of characters contained
+        #by brackets, the only constraint on these characters is that they do not contain a close bracket.
+        seq = re.search(r'\A(?:[^\.\[]+\.)?((?:[^\[\s\.](?:\[[^\]]+\])?)+)(?:\.[^\.\]]+)?\Z',seq).group(1)
         return seq
     
     def calc_mz(self):
