@@ -35,15 +35,16 @@ class InitializedPSMsTestSuite(ParsedOptionsTestSuite):
     def setUp(self):
         super().setUp()
         self.N = 3
-        self.seq = ['TEST', 'A.TEST.A', 'TES[1.23]T']
+        self.raw_sequence = ['TEST', 'A.TEST.A', 'TES[1.23]T']
         self.file = ['test1.mzML']*self.N
         self.scan = range(self.N)
         self.charge = [2]*self.N
         self.prots = ['TESTPROT']*self.N
-        self.psm_data = pd.DataFrame({'seq':self.seq,
-                                 'file':self.file,
-                                 'scan':self.scan,
-                                 'charge':self.charge,
-                                 'proteins':self.prots})
+        self.psm_data = pd.DataFrame({'raw_sequence':self.raw_sequence,
+                                      'file':self.file,
+                                      'scan':self.scan,
+                                      'charge':self.charge,
+                                      'proteins':self.prots,
+                                      'psm_metadata':[{}]*self.N})
         self.psms = initialize_psms(self.args, self.psm_data)
         

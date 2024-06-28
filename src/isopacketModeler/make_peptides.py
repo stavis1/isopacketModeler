@@ -6,11 +6,8 @@ Created on Thu Mar 21 17:02:02 2024
 @author: 4vt
 """
 
-from isoEnrich.options import options
-args = options.alt_init()
-
 from collections import defaultdict
-from tools.fitting_tools import peptide
+from isopacketModeler.fitting_tools import peptide
 
 def fingerprint(psm):
     return (psm.sequence, psm.mods, psm.label, *psm.metadata.values())

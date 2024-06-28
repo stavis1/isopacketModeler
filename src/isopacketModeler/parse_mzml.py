@@ -22,12 +22,23 @@ def parse_PSMs(args):
     for file in args.psms:
         psm_data.append(pd.read_csv(file, sep = '\t'))
     psm_data = pd.concat(psm_data)
+
+    #remove PSMs without matching mzML files
     ninit = psm_data.shape[0]
     psm_data = psm_data[[base_name(f) in args.base_names for f in psm_data['Spectrum File']]]
     if psm_data.shape[0] < ninit:
         args.logs.warn('There were PSMs without a corresponding spectrum file in the design document. These will be ignored.')
-    psm_data = psm_data[args.PSM_headers]
-    psm_data.columns = ['seq', 'file', 'scan', 'charge', 'proteins'] + args.PSM_headers[5:]
+    
+    #add arbitrary columns listed in the optios file as a metadata dictionary
+    if len(args.PSM_headers) > 5:
+        psm_metadata = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in psm_data[args.PSM_headers[5:]].iterrows()]
+    else:
+        psm_metadata = [{}]*psm_data.shape[0]
+    psm_data['psm_metadata'] = psm_metadata
+    
+    #subset the dataframe to only the columns we use
+    psm_data = psm_data[args.PSM_headers[:5] + ['psm_metadata']]
+    psm_data.columns = ['raw_sequence', 'file', 'scan', 'charge', 'proteins', 'psm_metadata']
     return psm_data
 
 def initialize_psms(args, psm_data):
@@ -35,10 +46,10 @@ def initialize_psms(args, psm_data):
     design_data = copy(args.design)
     design_data.index = [base_name(f) for f in design_data['file']]
 
-    #add metadata to PSMs    
+    #add design metadata dictionaries to PSMs    
     metadata = design_data.loc[[base_name(f) for f in psm_data['file']]]
-    metadata.index = range(metadata.shape[0])
-    psm_data = pd.concat((psm_data, metadata), axis = 1)    
+    psm_data['design_metadata'] = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in metadata.iterrows()]
+    psm_data['label'] = [m['label'] for m in psm_data['design_metadata']]
     
     #make duplicate control PSMs for each label used. This is for training the classifier model
     labels = sorted(set([l for l in args.design['label'] if l]))
@@ -50,10 +61,9 @@ def initialize_psms(args, psm_data):
         temp['label'] = [label]*temp.shape[0]
         psm_data.append(temp)
     psm_data = pd.concat(psm_data)
-    psm_data['aa_formulae'] = [args.AA_formulae]*psm_data.shape[0]
     
     # instantiate PSM objects
-    psms = [psm({k:v for k,v in zip(d[1].keys(), d[1].values)}) for d in psm_data.iterrows()]
+    psms = [psm(**d[1], args = args) for d in psm_data.iterrows()]
     return psms
 
 def read_mzml(file):

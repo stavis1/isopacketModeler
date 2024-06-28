@@ -23,14 +23,15 @@ class parsePSMsTestSuite(ParsedOptionsTestSuite):
             self.assertEqual(psms.shape[0], 10)
         for psm in psms:
             with self.subTest('Test that PSM have the right number of columns'):
-                self.assertEqual(psms.shape[1], 5)
+                self.assertEqual(psms.shape[1], 6)
     
     def test_parser_collects_arbitrary_metadata(self):
-        self.args.PSM_headers += ["PSMs Workflow ID", "Tags"]
+        meta_keys = ["PSMs Workflow ID", "Tags"]
+        self.args.PSM_headers += meta_keys
         psms = parse_PSMs(self.args)
-        for psm in psms:
-            with self.subTest('Test that PSM tuples are the right length'):
-                self.assertEqual(psms.shape[1], 7)
+        for meta in psms['psm_metadata']:
+            with self.subTest('Test that metadata dictionaries have the right entries'):
+                self.assertSequenceEqual(list(meta.keys()), meta_keys)
 
 class initializePSMsTestSuite(InitializedPSMsTestSuite):
     def test_label_file_PSMs_initialize_correctly(self):
@@ -190,14 +191,3 @@ class processPSMtestSuite(initializePSMsTestSuite):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-# =============================================================================
-# testing
-# =============================================================================
-import dill
-with open('TMP.dill', 'rb') as dillfile:
-    PSM_list = dill.load(dillfile)
-
-
-
