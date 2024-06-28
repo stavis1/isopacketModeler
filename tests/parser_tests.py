@@ -72,7 +72,7 @@ class mzmlReaderTestSuite(ParsedOptionsTestSuite):
         with self.subTest('test that all spectra are MS1s'):
             self.assertTrue(all([s[1].ms_level == 1 for s in ms1s]))
 
-class processPSMtestSuite(initializePSMsTestSuite):
+class processPSMtestSuite(InitializedPSMsTestSuite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.read_mzml = read_mzml
@@ -153,6 +153,7 @@ class processPSMtestSuite(initializePSMsTestSuite):
                 self.assertAlmostEqual(closest[1], peak[1])
     
     def test_multiple_psms_work(self):
+        print("RAN THIS1")
         rng = np.random.default_rng(1)
         #initialize PSM list    
         PSM_list = [self.psms[0]]*5
@@ -181,6 +182,47 @@ class processPSMtestSuite(initializePSMsTestSuite):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             results = process_psm('test1.mzML')
+        
+        with self.subTest('test there are the right number of results'):
+            self.assertEqual(len(results), 5)
+        for result in results:
+            with self.subTest('test each psm has the right number of peaks'):
+                N_real_peaks = len([p for p in results[0].intensity if np.isfinite(p)])
+                self.assertEqual(N_real_peaks, len(good_peaks))
+
+class processSpectrumDataTestSuite(InitializedPSMsTestSuite):
+    def test_collection_of_psms(self):
+        print("RAN THIS")
+        rng = np.random.default_rng(1)
+        #initialize PSM list    
+        PSM_list = [self.psms[0]]*5
+        PSM_list[0].scan = 10
+        #simulate unlabeled spectrum
+        spectrum = isotopic_variants(PSM_list[0].formula, npeaks = 6, charge = PSM_list[0].charge)
+        mz = [p.mz for p in spectrum]
+        intensity = [p.intensity for p in spectrum]
+        good_peaks = set(zip(mz, intensity))
+        N = 100
+        mz += list(rng.uniform(0,100,N))
+        intensity += list(rng.uniform(0,100,N))
+        #construct ms1 list
+        class mock_ms1():
+            def __init__(self):
+                self.i = intensity
+                self.mz = mz
+        ms1s = SortedList([(i, mock_ms1()) for i in range(20)])
+
+        def read_mzml(file):
+            return ms1s
+        
+        #inject our mocked data into the namespace of the function
+        process_psm.__globals__['read_mzml'] = read_mzml
+        process_psm.__globals__['PSM_list'] = PSM_list
+        process_spectrum_data.__globals__['process_psm'] = process_psm
+        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            results = process_spectrum_data(self.args, PSM_list)
         
         with self.subTest('test there are the right number of results'):
             self.assertEqual(len(results), 5)
