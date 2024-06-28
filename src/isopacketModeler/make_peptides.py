@@ -10,7 +10,7 @@ from collections import defaultdict
 from isopacketModeler.fitting_tools import peptide
 
 def fingerprint(psm):
-    return (psm.sequence, psm.mods, psm.label, *psm.metadata.values())
+    return (psm.raw_sequence, psm.file)
 
 def initialize_peptides(psms):
     psm_lists = defaultdict(lambda:[])

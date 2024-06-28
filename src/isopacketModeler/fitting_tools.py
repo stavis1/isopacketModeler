@@ -151,11 +151,13 @@ class peptide:
         psm = psms[0]
         self.psms = psms
         self.sequence = psm.sequence
+        self.raw_sequence = psm.raw_sequence
         self.label = psm.label
         self.formula = psm.formula
         self.mz = psm.mz
         self.background = psm.background
-        self.metadata = psm.metadata
+        self.design_metadata = psm.design_metadata
+        self.psm_metadata = [p.psm_metadata for p in psms]
         normed = [np.asarray(p.intensity)/np.nansum(p.intensity) for p in self.psms]
         self.npeaks = max([len(n) for n in normed])
         self.obs = np.array([self.clean(np.concatenate((n, np.full(self.npeaks - len(n), np.nan)))) for n in normed])

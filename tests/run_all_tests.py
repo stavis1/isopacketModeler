@@ -10,6 +10,7 @@ import unittest
 
 from options_tests import *
 from parser_tests import *
+from peptide_tests import *
 
 if __name__ == '__main__':
     unittest.main()

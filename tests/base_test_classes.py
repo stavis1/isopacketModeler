@@ -9,11 +9,14 @@ import sys
 import os
 import unittest
 import shutil
+import warnings
 
 import pandas as pd
+from brainpy import isotopic_variants
+from sortedcontainers import SortedList
 
 from isopacketModeler.options import options
-from isopacketModeler.parse_mzml import initialize_psms
+from isopacketModeler.parse_mzml import initialize_psms, process_psm, process_spectrum_data, read_mzml
 
 
 class ParsedOptionsTestSuite(unittest.TestCase):
@@ -48,3 +51,43 @@ class InitializedPSMsTestSuite(ParsedOptionsTestSuite):
                                       'psm_metadata':[{}]*self.N})
         self.psms = initialize_psms(self.args, self.psm_data)
         
+class ProcessedPSMsTestSuite(InitializedPSMsTestSuite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.read_mzml = read_mzml
+        self.process_psm = process_psm
+    
+    def setUp(self):
+        super().setUp()
+        #initialize PSM list    
+        PSM_list = self.psms
+        for psm in PSM_list:
+            psm.scan = 10
+        #simulate unlabeled spectrum
+        spectrum = isotopic_variants(PSM_list[0].formula, npeaks = 6, charge = PSM_list[0].charge)
+        mz = [p.mz for p in spectrum]
+        intensity = [p.intensity for p in spectrum]
+        #construct ms1 list
+        class mock_ms1():
+            def __init__(self):
+                self.i = intensity
+                self.mz = mz
+        ms1s = SortedList([(i, mock_ms1()) for i in range(20)])
+
+        def read_mzml(file):
+            return ms1s
+        
+        #inject our mocked data into the namespace of the function
+        process_psm.__globals__['read_mzml'] = read_mzml
+        process_psm.__globals__['PSM_list'] = PSM_list
+        process_spectrum_data.__globals__['process_psm'] = process_psm
+        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.psms = process_spectrum_data(self.args, PSM_list)
+            assert len(self.psms) == self.N
+
+    def tearDown(self):
+        super().tearDown()
+        globals()['process_psm'] = self.process_psm
+        globals()['read_mzml'] = self.read_mzml

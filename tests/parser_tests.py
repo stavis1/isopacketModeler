@@ -13,10 +13,10 @@ from brainpy import isotopic_variants
 from sortedcontainers import SortedList
 import numpy as np
 
-from base_test_classes import ParsedOptionsTestSuite, InitializedPSMsTestSuite
+import base_test_classes
 from isopacketModeler.parse_mzml import parse_PSMs, initialize_psms, process_psm, process_spectrum_data, read_mzml
 
-class parsePSMsTestSuite(ParsedOptionsTestSuite):
+class parsePSMsTestSuite(base_test_classes.ParsedOptionsTestSuite):
     def test_parses_PD_psms_file(self):
         psms = parse_PSMs(self.args)
         with self.subTest('Test that 6 psms were found'):
@@ -33,7 +33,7 @@ class parsePSMsTestSuite(ParsedOptionsTestSuite):
             with self.subTest('Test that metadata dictionaries have the right entries'):
                 self.assertSequenceEqual(list(meta.keys()), meta_keys)
 
-class initializePSMsTestSuite(InitializedPSMsTestSuite):
+class initializePSMsTestSuite(base_test_classes.InitializedPSMsTestSuite):
     def test_label_file_PSMs_initialize_correctly(self):
         N = self.N
         psms = self.psms
@@ -64,7 +64,7 @@ class initializePSMsTestSuite(InitializedPSMsTestSuite):
         with self.subTest('Check both labels are used'):
             self.assertListEqual([p.label for p in psms], ['C']*self.N + ['N']*self.N)
 
-class mzmlReaderTestSuite(ParsedOptionsTestSuite):
+class mzmlReaderTestSuite(base_test_classes.ParsedOptionsTestSuite):
     def test_mzml_reader_extracts_ms1s(self):
         ms1s = read_mzml(self.args.mzml_files[0])
         with self.subTest('test that the right number of MS1s are found'):
@@ -72,7 +72,7 @@ class mzmlReaderTestSuite(ParsedOptionsTestSuite):
         with self.subTest('test that all spectra are MS1s'):
             self.assertTrue(all([s[1].ms_level == 1 for s in ms1s]))
 
-class processPSMtestSuite(InitializedPSMsTestSuite):
+class processPSMtestSuite(base_test_classes.InitializedPSMsTestSuite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.read_mzml = read_mzml
@@ -153,7 +153,6 @@ class processPSMtestSuite(InitializedPSMsTestSuite):
                 self.assertAlmostEqual(closest[1], peak[1])
     
     def test_multiple_psms_work(self):
-        print("RAN THIS1")
         rng = np.random.default_rng(1)
         #initialize PSM list    
         PSM_list = [self.psms[0]]*5
@@ -190,9 +189,8 @@ class processPSMtestSuite(InitializedPSMsTestSuite):
                 N_real_peaks = len([p for p in results[0].intensity if np.isfinite(p)])
                 self.assertEqual(N_real_peaks, len(good_peaks))
 
-class processSpectrumDataTestSuite(InitializedPSMsTestSuite):
+class processSpectrumDataTestSuite(base_test_classes.InitializedPSMsTestSuite):
     def test_collection_of_psms(self):
-        print("RAN THIS")
         rng = np.random.default_rng(1)
         #initialize PSM list    
         PSM_list = [self.psms[0]]*5
