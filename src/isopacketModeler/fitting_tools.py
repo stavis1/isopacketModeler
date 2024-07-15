@@ -6,7 +6,6 @@ Created on Thu Mar 14 15:33:40 2024
 @author: 4vt
 """
 
-import os
 from functools import cache
 from copy import copy
 import re
@@ -39,17 +38,17 @@ def isotope_packet(formula, charge):
     return np.array([p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge)])
 
 def theo_packet(psm, enrichment):
-    label_dist = binom.pmf(k = range(psm['formula'][psm['label']]),
-                           n = psm['formula'][psm['label']],
+    label_dist = binom.pmf(k = range(psm.formula[psm.label]),
+                           n = psm.formula[psm.label],
                            p = enrichment)
-    return np.convolve(label_dist, psm['background'])
+    return np.convolve(label_dist, psm.background)
 
 def beta_theo_packet(psm, a, b):
-    label_dist = betabinom.pmf(k = range(psm['formula'][psm['label']]),
-                               n = psm['formula'][psm['label']],
+    label_dist = betabinom.pmf(k = range(psm.formula[psm.label]),
+                               n = psm.formula[psm.label],
                                a = a,
                                b = b)
-    return np.convolve(label_dist, psm['background'])
+    return np.convolve(label_dist, psm.background)
 
 class psm:
     def __init__(self,
