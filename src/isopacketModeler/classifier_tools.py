@@ -69,7 +69,7 @@ class classifier():
                 ntarget -= 1
             else:
                 ndecoy -= 1
-            exp_fdr = (ndecoy*decoy_scale)/ntarget
+            exp_fdr = (ndecoy*decoy_scale)/ntarget if ntarget > 0 else 0
         self.cutoff = elm[0]
     
     def predict_proba(self, X):
@@ -78,6 +78,11 @@ class classifier():
     def predict(self, X):
         probs = self.predict_proba(X)[:,0]
         return probs > self.cutoff
+    
+    def winnow(self, X, psms):
+        classes = self.predict(X)
+        psms = [p for p,c in zip(psms, classes) if c == 1]
+        return psms
 
     def preprocess(self, psms):
         data = []

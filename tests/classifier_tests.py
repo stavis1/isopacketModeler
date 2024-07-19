@@ -126,6 +126,28 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         with self.subTest('ensure the data are shuffled'):
             self.assertAlmostEqual(np.sum(processed_labels[-500:])/1000, 0.5, delta = 0.2)
 
+    def test_winnowing_works(self):
+        ctrl = self.make_false_data(self.rng)
+        obs = np.concatenate((self.make_false_data(self.rng),
+                              self.make_true_data(self.rng)), axis = 0)
+        data = np.concatenate((ctrl, obs), axis = 0)
+        label = np.array([0]*self.N + [1]*(2*self.N))
+        shuffle_idx = self.rng.choice(range(len(label)), len(label), replace = False)
+        data = data[shuffle_idx,:,:]
+        label = label[shuffle_idx]
+        
+        self.model.fit(data, label)
+
+        new_obs = np.concatenate((self.make_false_data(self.rng),
+                                  self.make_true_data(self.rng)), axis = 0)
+        new_label = [0]*self.N + [1]*self.N
+        filtered_labels = self.model.winnow(new_obs, new_label)
+        
+        with self.subTest('test that winnowed data are FDR controlled'):
+            self.assertLess(np.sum(filtered_labels == 0)/len(filtered_labels), self.model.FDR + 0.02)
+        with self.subTest('test that winnowing has acceptable sensitivity'):
+            self.assertGreater(np.sum(filtered_labels)/self.N, 0.8)
+
 if __name__ == '__main__':
     unittest.main()
 
