@@ -81,7 +81,7 @@ class classifier():
     
     def winnow(self, X, psms):
         classes = self.predict(X)
-        psms = [p for p,c in zip(psms, classes) if c == 1]
+        psms = [p for p,c in zip(psms, classes) if c == 1 and p.label]
         return psms
 
     def preprocess(self, psms):

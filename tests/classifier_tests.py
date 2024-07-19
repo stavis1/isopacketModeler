@@ -109,8 +109,8 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
                 self.intensity = rng.uniform(0,1e6,self.N)
                 self.mz_err = rng.uniform(-1,1,self.N)
                 missing = rng.choice(range(self.N), 
-                                     int(rng.uniform(0,0.9)*self.N), 
-                                     replace = False)
+                                      int(rng.uniform(0,0.9)*self.N), 
+                                      replace = False)
                 self.intensity[missing] = np.nan
                 self.mz_err[missing] = np.nan
                 self.mz = np.array(range(self.N))*rng.uniform(200,2000)
@@ -127,6 +127,11 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
             self.assertAlmostEqual(np.sum(processed_labels[-500:])/1000, 0.5, delta = 0.2)
 
     def test_winnowing_works(self):
+        class PSM():
+            def __init__(self, value, label):
+                self.value = value
+                self.label = 'C' if label != 0 else ''
+        
         ctrl = self.make_false_data(self.rng)
         obs = np.concatenate((self.make_false_data(self.rng),
                               self.make_true_data(self.rng)), axis = 0)
@@ -138,15 +143,18 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         
         self.model.fit(data, label)
 
+        new_ctrl = self.make_false_data(self.rng)
         new_obs = np.concatenate((self.make_false_data(self.rng),
                                   self.make_true_data(self.rng)), axis = 0)
-        new_label = [0]*self.N + [1]*self.N
-        filtered_labels = self.model.winnow(new_obs, new_label)
+        new_data = np.concatenate((new_ctrl, new_obs), axis = 0)
+        new_label = [(0,'')]*self.N + [(0, 'C')]*self.N + [(1, 'C')]*self.N
+        new_label = [PSM(*l) for l in new_label]
+        filtered_labels = self.model.winnow(new_data, new_label)
         
         with self.subTest('test that winnowed data are FDR controlled'):
-            self.assertLess(np.sum(filtered_labels == 0)/len(filtered_labels), self.model.FDR + 0.02)
+            self.assertLess(np.sum([l.value for l in filtered_labels] == 0)/len(filtered_labels), self.model.FDR + 0.02)
         with self.subTest('test that winnowing has acceptable sensitivity'):
-            self.assertGreater(np.sum(filtered_labels)/self.N, 0.8)
+            self.assertGreater(np.sum([l.value for l in filtered_labels])/self.N, 0.8)
 
 if __name__ == '__main__':
     unittest.main()
