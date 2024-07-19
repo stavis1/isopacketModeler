@@ -11,6 +11,7 @@ import unittest
 import shutil
 import warnings
 
+import numpy as np
 import pandas as pd
 from brainpy import isotopic_variants
 from sortedcontainers import SortedList
@@ -91,3 +92,22 @@ class ProcessedPSMsTestSuite(InitializedPSMsTestSuite):
         super().tearDown()
         globals()['process_psm'] = self.process_psm
         globals()['read_mzml'] = self.read_mzml
+
+class DataGeneratingProcessTestSuite(ParsedOptionsTestSuite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.DGP = None
+    
+    def setUp(self):
+        super().setUp()
+        self.rng = np.random.default_rng(1)
+    
+    def test_fit_is_poor_on_noise(self):
+        pass
+    
+    def test_fit_is_good_on_DGPs_own_expected_data(self):
+        pass
+    
+    
+    
+
