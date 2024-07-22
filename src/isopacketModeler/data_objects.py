@@ -13,7 +13,6 @@ from collections import defaultdict
 
 import numpy as np
 from brainpy import isotopic_variants
-from scipy.stats import binom, betabinom
 from sortedcontainers import SortedList
 
 
@@ -149,6 +148,7 @@ class peptide:
         self.obs = np.array([self.clean(np.concatenate((n, np.full(self.npeaks - len(n), np.nan)))) for n in normed])
         self.unenriched = self.reshape(psm.unenriched)
         self.mz_err = np.array([self.reshape(p.mz_err) for p in self.psms])
+        self.fit_results = []
 
     def clean(self, vals):
         vals = copy(vals)

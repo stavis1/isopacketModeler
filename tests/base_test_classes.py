@@ -18,6 +18,7 @@ from sortedcontainers import SortedList
 
 from isopacketModeler.options import options
 from isopacketModeler.parse_mzml import initialize_psms, process_psm, process_spectrum_data, read_mzml
+from isopacketModeler.data_objects import peptide
 
 
 class ParsedOptionsTestSuite(unittest.TestCase):
@@ -93,21 +94,46 @@ class ProcessedPSMsTestSuite(InitializedPSMsTestSuite):
         globals()['process_psm'] = self.process_psm
         globals()['read_mzml'] = self.read_mzml
 
-class DataGeneratingProcessTestSuite(ParsedOptionsTestSuite):
+class DataGeneratingProcessTestSuite(InitializedPSMsTestSuite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.DGP = None
+        self.reasonable_params = np.array([])
     
     def setUp(self):
         super().setUp()
         self.rng = np.random.default_rng(1)
+        self.DGP = None
     
     def test_fit_is_poor_on_noise(self):
-        pass
+        for psm in self.psms:
+            psm.intensity = self.rng.uniform(1e5,1e7,len(psm.mz))
+            ppm5 = (psm.mz[0]/1e6)*5
+            psm.mz_err = self.rng.uniform(-ppm5,ppm5,len(psm.mz))
+            nan_mask = self.rng.choice(range(len(psm.mz)), 
+                                       self.rng.integers(0,len(psm.mz)//3))
+            psm.intensity[nan_mask] = np.nan
+            psm.mz_err[nan_mask] = np.nan
+        pep = peptide(self.psms)
+        self.DGP.fit(pep)
+        with self.subTest('ensure that the right number of results were added'):
+            self.assertEqual(len(pep.fit_results), 1)
+        with self.subTest('test that the fit is poor'):
+            self.assertGreater(pep.fit_results[0].fit, 0.01)
     
     def test_fit_is_good_on_DGPs_own_expected_data(self):
-        pass
-    
-    
-    
+        for psm in self.psms:
+            psm.intensity = self.rng.uniform(1e5,1e7,len(psm.mz))
+            ppm5 = (psm.mz[0]/1e6)*5
+            psm.mz_err = self.rng.uniform(-ppm5,ppm5,len(psm.mz))
+        pep = peptide(self.psms)
+        expected_intensity = self.DGP.expected(pep, self.reasonable_params)
+        expected_intensity = np.array([expected_intensity]*len(self.psms))
+        pep.obs = expected_intensity
+        self.DGP.fit(pep)
+        with self.subTest('test that fit is good'):
+            self.assertLess(pep.fit_results[0].fit, 0.01)
+        for truth, fitted in zip(self.reasonable_params, pep.fit_results[0].params):
+            with self.subTest('test that parameters are recovered'):
+                self.assertAlmostEqual(truth, fitted, delta = 0.001)
+        
 
