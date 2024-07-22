@@ -7,7 +7,7 @@ Created on Thu Mar 21 17:02:02 2024
 """
 
 from collections import defaultdict
-from isopacketModeler.fitting_tools import peptide
+from isopacketModeler.data_objects import peptide
 
 def fingerprint(psm):
     return (psm.raw_sequence, psm.file)

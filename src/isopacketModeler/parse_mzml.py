@@ -14,7 +14,7 @@ import pandas as pd
 import pymzml
 from sortedcontainers import SortedList
 
-from isopacketModeler.fitting_tools import psm, base_name
+from isopacketModeler.data_objects import psm, base_name
 
 # parse PSM files into a list of data tuples
 def parse_PSMs(args):

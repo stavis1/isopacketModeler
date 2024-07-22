@@ -37,19 +37,6 @@ def base_name(filename):
 def isotope_packet(formula, charge):
     return np.array([p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge)])
 
-def theo_packet(psm, enrichment):
-    label_dist = binom.pmf(k = range(psm.formula[psm.label]),
-                           n = psm.formula[psm.label],
-                           p = enrichment)
-    return np.convolve(label_dist, psm.background)
-
-def beta_theo_packet(psm, a, b):
-    label_dist = betabinom.pmf(k = range(psm.formula[psm.label]),
-                               n = psm.formula[psm.label],
-                               a = a,
-                               b = b)
-    return np.convolve(label_dist, psm.background)
-
 class psm:
     def __init__(self,
                  raw_sequence,
@@ -199,53 +186,5 @@ class peptide:
             return arr[:self.npeaks]
         else:
             return arr
-    
-    def expected(self, x):
-        label = betabinom.pmf(k = range(self.formula[self.label]),
-                              n = self.formula[self.label],
-                              a = x[1],
-                              b = x[2])
-        exp = np.convolve(label, self.background)
-        exp = self.reshape(exp)
-        exp = (self.unenriched*(1-x[0])) + (exp*x[0])
-        exp = exp/np.nansum(exp)
-        return exp
-    
-    def interp(self, vec):
-        x = np.linspace(min(self.mz),max(self.mz),256)
-        vec = np.interp(x, self.mz, vec)
-        return vec
-    
-    def zero_fill(self, vec):
-        vec[np.isnan(vec)] = np.zeros(vec.shape)[np.isnan(vec)]
-        return vec
-
-    def preprocess(self):
-        mz = self.mz[0]
-        intensity = np.nanmean(self.obs, axis = 0)
-        intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
-        intensity = self.zero_fill(intensity)
-        intensity = self.interp(intensity)
-
-        mz_std = np.nanstd(self.mz_err, axis = 0)
-        mz_std = mz_std/mz
-        mz_std = self.zero_fill(mz_std)
-        mz_std = self.interp(mz_std)
-
-        mz_mean = np.nanmean(self.mz_err, axis = 0)
-        mz_mean = mz_mean/mz
-        mz_mean = self.zero_fill(mz_mean)
-        mz_mean = self.interp(mz_mean)
-        return np.array([intensity, mz_std, mz_mean])
-
-    def preprocess_init(self):
-        intensity = np.nanmean(self.obs, axis = 0)
-        intensity[np.isnan(intensity)] = np.zeros(intensity.shape)[np.isnan(intensity)]
-        intensity = self.zero_fill(intensity)
-        intensity = self.interp(intensity)
-        return intensity
-    
-
-
 
 
