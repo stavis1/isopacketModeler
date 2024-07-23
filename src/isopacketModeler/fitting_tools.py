@@ -7,7 +7,7 @@ Created on Mon Jul 22 11:34:30 2024
 """
 
 from scipy.optimize import basinhopping
-from scipy.stats import betabinom
+from scipy.stats import betabinom, binom
 import numpy as np
 
 rng = np.random.default_rng(1)
@@ -91,5 +91,82 @@ class BetabinomQuiescentMix(DataGeneratingProcess):
         exp = np.convolve(label, peptide.background)
         exp = peptide.reshape(exp)
         exp = (peptide.unenriched*(1-params[0])) + (exp*params[0])
+        exp = exp/np.nansum(exp)
+        return exp
+
+class Betabinom(DataGeneratingProcess):
+    def __init__(self, args):
+        super().__init__(args)
+        self.name = 'Betabinom'
+        self.bounds = [(1,100),
+                       (1,100)]
+        self.take_step = BBRandomDisplacementBounds(self.bounds)
+    
+    def get_x0(self, peptide):
+        return [4,3]
+    
+    def expected(self, peptide, params):
+        label = betabinom.pmf(k = range(peptide.formula[peptide.label]),
+                              n = peptide.formula[peptide.label],
+                              a = params[0],
+                              b = params[1])
+        exp = np.convolve(label, peptide.background)
+        exp = peptide.reshape(exp)
+        exp = exp/np.nansum(exp)
+        return exp
+
+class BinomRandomDisplacementBounds(object):
+    """random displacement with bounds for betabinomial models"""
+    def __init__(self, bounds, stepsize=0.5):
+        self.xmin = np.array([b[0] for b in bounds])
+        self.xmax = np.array([b[1] for b in bounds])
+        self.stepsize = stepsize
+
+    def __call__(self, x):
+        """take a random step but ensure the new position is within the bounds"""
+        xnew = np.clip(x + rng.uniform(-self.stepsize, 
+                                       self.stepsize, 
+                                       np.shape(x)),
+                       self.xmin,
+                       self.xmax)
+        return xnew
+
+class BinomQuiescentMix(DataGeneratingProcess):
+    def __init__(self, args):
+        super().__init__(args)
+        self.name = 'BinomQuiescentMix'
+        self.bounds = [(0,1),
+                       (0.1,1)]
+        self.take_step = BinomRandomDisplacementBounds(self.bounds)
+    
+    def get_x0(self, peptide):
+        return [0.5,0.5]
+    
+    def expected(self, peptide, params):
+        label = binom.pmf(k = range(peptide.formula[peptide.label]),
+                          n = peptide.formula[peptide.label],
+                          p = params[1])
+        exp = np.convolve(label, peptide.background)
+        exp = peptide.reshape(exp)
+        exp = (peptide.unenriched*(1-params[0])) + (exp*params[0])
+        exp = exp/np.nansum(exp)
+        return exp
+
+class Binom(DataGeneratingProcess):
+    def __init__(self, args):
+        super().__init__(args)
+        self.name = 'Binom'
+        self.bounds = [(0,1)]
+        self.take_step = BinomRandomDisplacementBounds(self.bounds)
+    
+    def get_x0(self, peptide):
+        return [0.5]
+    
+    def expected(self, peptide, params):
+        label = binom.pmf(k = range(peptide.formula[peptide.label]),
+                          n = peptide.formula[peptide.label],
+                          p = params[0])
+        exp = np.convolve(label, peptide.background)
+        exp = peptide.reshape(exp)
         exp = exp/np.nansum(exp)
         return exp

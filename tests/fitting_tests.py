@@ -10,7 +10,7 @@ import unittest
 
 import numpy as np
 
-from isopacketModeler.fitting_tools import BetabinomQuiescentMix
+from isopacketModeler.fitting_tools import BetabinomQuiescentMix, Betabinom, BinomQuiescentMix, Binom
 import base_test_classes
 
 class BetabinomQuiescentMixTestSuite(base_test_classes.DataGeneratingProcessTestSuite):
@@ -21,6 +21,35 @@ class BetabinomQuiescentMixTestSuite(base_test_classes.DataGeneratingProcessTest
     def setUp(self):
         super().setUp()
         self.DGP = BetabinomQuiescentMix(self.args)
+
+class BetabinomTestSuite(base_test_classes.DataGeneratingProcessTestSuite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reasonable_params = np.array([4,3])
+    
+    def setUp(self):
+        super().setUp()
+        self.DGP = Betabinom(self.args)
+
+class BinomQuiescentMixTestSuite(base_test_classes.DataGeneratingProcessTestSuite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reasonable_params = np.array([0.5,0.5])
+    
+    def setUp(self):
+        super().setUp()
+        self.DGP = BinomQuiescentMix(self.args)
+
+class BinomTestSuite(base_test_classes.DataGeneratingProcessTestSuite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reasonable_params = np.array([0.5])
+    
+    def setUp(self):
+        super().setUp()
+        self.DGP = Binom(self.args)
+
+
 
 if __name__ == '__main__':
     unittest.main()
