@@ -21,8 +21,8 @@ class results():
 
 class DataGeneratingProcess():
     def __init__(self, args):
-        self.name = None
-        self.bounds = None
+        self.name = NotImplemented
+        self.bounds = NotImplemented
         #figure out how to pass initial guesses to get_x0
     
     def expected(self, peptide, params):

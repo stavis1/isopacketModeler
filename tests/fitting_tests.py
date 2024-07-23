@@ -10,7 +10,7 @@ import unittest
 
 import numpy as np
 
-from isopacketModeler.fitting_tools import BetabinomQuiescentMix, Betabinom, BinomQuiescentMix, Binom
+from isopacketModeler.data_generating_processes import BetabinomQuiescentMix, Betabinom, BinomQuiescentMix, Binom
 import base_test_classes
 
 class BetabinomQuiescentMixTestSuite(base_test_classes.DataGeneratingProcessTestSuite):
