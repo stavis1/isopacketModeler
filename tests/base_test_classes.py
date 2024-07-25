@@ -114,7 +114,7 @@ class DataGeneratingProcessTestSuite(InitializedPSMsTestSuite):
             psm.intensity[nan_mask] = np.nan
             psm.mz_err[nan_mask] = np.nan
         pep = peptide(self.psms)
-        self.DGP.fit(pep)
+        pep.fit_results.append(self.DGP.fit(pep))
         with self.subTest('ensure that the right number of results were added'):
             self.assertEqual(len(pep.fit_results), 1)
         with self.subTest('test that the fit is poor'):
@@ -129,7 +129,7 @@ class DataGeneratingProcessTestSuite(InitializedPSMsTestSuite):
         expected_intensity = self.DGP.expected(pep, self.reasonable_params)
         expected_intensity = np.array([expected_intensity]*len(self.psms))
         pep.obs = expected_intensity
-        self.DGP.fit(pep)
+        pep.fit_results.append(self.DGP.fit(pep))
         with self.subTest('test that fit is good'):
             self.assertLess(pep.fit_results[0].fit, 0.01)
         for truth, fitted in zip(self.reasonable_params, pep.fit_results[0].params):

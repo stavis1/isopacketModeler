@@ -149,6 +149,7 @@ class peptide:
         self.unenriched = self.reshape(psm.unenriched)
         self.mz_err = np.array([self.reshape(p.mz_err) for p in self.psms])
         self.fit_results = []
+        self.canonical_fit = None
 
     def clean(self, vals):
         vals = copy(vals)

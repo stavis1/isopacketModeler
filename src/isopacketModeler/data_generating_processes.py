@@ -50,7 +50,7 @@ class DataGeneratingProcess():
                               T=2,
                               minimizer_kwargs = args,
                               take_step = self.take_step)
-        peptide.fit_results.append(results(result, self.name))
+        return results(result, self.name)
 
 class BBRandomDisplacementBounds(object):
     """random displacement with bounds for betabinomial models"""

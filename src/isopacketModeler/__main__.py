@@ -5,13 +5,13 @@ Created on Thu Mar 28 17:09:56 2024
 
 @author: 4vt
 """
-
 from isopacketModeler.options import options
 args = options()
 
 from isopacketModeler.parse_mzml import parse_PD, initialize_psms, process_spectrum_data
 from isopacketModeler.make_peptides import initialize_peptides
 from isopacketModeler.classifier_tools import classifier
+from isopacketModeler.fit_controller import peptide_fit_conroller
 
 #Collect data from mzML files.
 psm_data = parse_PD(args)
@@ -27,8 +27,10 @@ psms = psm_classifier.winnow(psm_data, psms)
 #Collect PSMs into peptide objects.
 peptides = initialize_peptides(psms)
 
-#Fit models to peptide data
+#Fit models to peptide data.
+fit_controller = peptide_fit_conroller(args)
+fit_controller.fit_peptides(peptides)
 
-#Export results
+#Export results.
 
 
