@@ -12,6 +12,7 @@ from isopacketModeler.parse_mzml import parse_PD, initialize_psms, process_spect
 from isopacketModeler.make_peptides import initialize_peptides
 from isopacketModeler.classifier_tools import classifier
 from isopacketModeler.fit_controller import peptide_fit_conroller
+from isopacketModeler.report import make_report
 
 #Collect data from mzML files.
 psm_data = parse_PD(args)
@@ -29,8 +30,8 @@ peptides = initialize_peptides(psms)
 
 #Fit models to peptide data.
 fit_controller = peptide_fit_conroller(args)
-fit_controller.fit_peptides(peptides)
+peptides = fit_controller.fit_peptides(peptides)
 
 #Export results.
-
+make_report(args, peptides)
 

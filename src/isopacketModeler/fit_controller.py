@@ -56,4 +56,6 @@ class peptide_fit_conroller():
         
         for peptide in peptides:
             self.model_selection(peptide)
+        
+        return peptides
 
