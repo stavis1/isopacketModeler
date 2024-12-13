@@ -18,6 +18,13 @@ from isopacketModeler.data_objects import psm, base_name
 
 # parse PSM files into a list of data tuples
 def parse_PSMs(args):
+    column_names = ['sequence',
+                    'file', 
+                    'scan',
+                    'charge', 
+                    'proteinIds']
+    column_map = {n:c for n,c in zip(column_names, args.PSM_headers[:len(column_names)])}
+    
     psm_data = []
     for file in args.psms:
         psm_data.append(pd.read_csv(file, sep = '\t'))
@@ -25,7 +32,7 @@ def parse_PSMs(args):
 
     #remove PSMs without matching mzML files
     ninit = psm_data.shape[0]
-    psm_data = psm_data[[base_name(f) in args.base_names for f in psm_data['Spectrum File']]]
+    psm_data = psm_data[[base_name(f) in args.base_names for f in psm_data[column_map['file']]]]
     if psm_data.shape[0] < ninit:
         args.logs.warn('There were PSMs without a corresponding spectrum file in the design document. These will be ignored.')
     
