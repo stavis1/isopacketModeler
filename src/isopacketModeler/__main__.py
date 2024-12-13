@@ -8,14 +8,14 @@ Created on Thu Mar 28 17:09:56 2024
 from isopacketModeler.options import options
 args = options()
 
-from isopacketModeler.parse_mzml import parse_PD, initialize_psms, process_spectrum_data
+from isopacketModeler.parse_mzml import parse_PSMs, initialize_psms, process_spectrum_data
 from isopacketModeler.make_peptides import initialize_peptides
 from isopacketModeler.classifier_tools import classifier
 from isopacketModeler.fit_controller import peptide_fit_conroller
 from isopacketModeler.report import make_report
 
 #Collect data from mzML files.
-psm_data = parse_PD(args)
+psm_data = parse_PSMs(args)
 psms = initialize_psms(args, psm_data)
 psms = process_spectrum_data(args, psms)
 
