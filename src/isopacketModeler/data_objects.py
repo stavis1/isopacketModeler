@@ -56,12 +56,12 @@ class psm:
         self.psm_metadata = psm_metadata
         self.design_metadata = design_metadata
         self.label = label
-        self.args = args
+        self.AA_formulae = args.AA_formulae
         
         self.sequence = self.clean_seq(self.raw_sequence)
         self.base_name = base_name(self.file)
 
-        with open(self.args.AA_formulae, 'r') as tsv:
+        with open(self.AA_formulae, 'r') as tsv:
             cols = tsv.readline().strip().split('\t')
             self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
         self.formula = self.calc_formula()
