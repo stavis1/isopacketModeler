@@ -71,6 +71,7 @@ def initialize_psms(args, psm_data):
     
     # instantiate PSM objects
     psms = [psm(**d[1], args = args) for d in psm_data.iterrows()]
+    args.logs.info('PSM objects have been initialized.')
     return psms
 
 def read_mzml(file):
@@ -90,11 +91,14 @@ def process_psm(file):
         scans = ms1s[scan_idx - 3: scan_idx + 4]
         p.parse_scans(scans)
         results.append(p)
+    logger.info(f'Raw isotope patterns have been extracted from {file}.')
     return results
 
 def process_spectrum_data(args, psms):
     global PSM_list
     PSM_list = psms
+    global logger
+    logger = args.logs
 
     with Pool(args.cores) as p:
         result_psms = p.map(process_psm, args.mzml_files)
