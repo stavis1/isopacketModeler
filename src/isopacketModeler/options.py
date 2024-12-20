@@ -45,7 +45,7 @@ class options:
                 raise FileExistsError('An output directory with this name already exists and overwrite is false.')
     
     def logger_init(self):
-        self.logs = logging.getlogger('isopacketModeler')
+        self.logs = logging.getLogger('isopacketModeler')
         self.logs.setLevel(10)
         formatter = formatter = logging.Formatter('%(asctime)s | %(name)s | %(levelname)s: %(message)s')
 
