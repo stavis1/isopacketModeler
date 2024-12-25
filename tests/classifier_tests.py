@@ -122,7 +122,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         with self.subTest('test that the right number of PSMs are preprocessed'):
             self.assertEqual(len(processed_labels), 1000)
         with self.subTest('test that the right number of PSMs are preprocessed'):
-            self.assertEqual(processed_data.shape[2], 1000)
+            self.assertEqual(processed_data.shape[0], 1000)
         with self.subTest('ensure the data are shuffled'):
             self.assertAlmostEqual(np.sum(processed_labels[-500:])/1000, 0.5, delta = 0.2)
 
