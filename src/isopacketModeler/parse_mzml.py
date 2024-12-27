@@ -58,17 +58,6 @@ def initialize_psms(args, psm_data):
     psm_data['design_metadata'] = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in metadata.iterrows()]
     psm_data['label'] = [m['label'] for m in psm_data['design_metadata']]
     
-    #make duplicate control PSMs for each label used. This is for training the classifier model
-    labels = sorted(set([l for l in args.design['label'] if l]))
-    controls = psm_data[psm_data['label'] == '']
-    labeled = psm_data[psm_data['label'] != '']
-    psm_data = [labeled]
-    for label in labels:
-        temp = controls.copy()
-        temp['label'] = [label]*temp.shape[0]
-        psm_data.append(temp)
-    psm_data = pd.concat(psm_data)
-    
     # instantiate PSM objects
     psms = [psm(**d[1], args = args) for d in psm_data.iterrows()]
     args.logs.info('PSM objects have been initialized.')
