@@ -11,6 +11,7 @@ import os
 from copy import copy
 
 import pandas as pd
+import numpy as np
 import pymzml
 from sortedcontainers import SortedList
 
@@ -57,6 +58,18 @@ def initialize_psms(args, psm_data):
     metadata = design_data.loc[[base_name(f) for f in psm_data['file']]]
     psm_data['design_metadata'] = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in metadata.iterrows()]
     psm_data['label'] = [m['label'] for m in psm_data['design_metadata']]
+    psm_data['is_labeled'] = [bool(l) for l in psm_data['label']]
+    
+    #make duplicate control PSMs for each label used. This is for training the classifier model
+    labels = sorted(set([l for l in args.design['label'] if l]))
+    controls = psm_data[np.logical_not(psm_data['is_labeled'])]
+    labeled = psm_data[psm_data['is_labeled']]
+    psm_data = [labeled]
+    for label in labels:
+        temp = controls.copy()
+        temp['label'] = [label]*temp.shape[0]
+        psm_data.append(temp)
+    psm_data = pd.concat(psm_data)
     
     # instantiate PSM objects
     psms = [psm(**d[1], args = args) for d in psm_data.iterrows()]

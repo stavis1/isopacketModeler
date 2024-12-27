@@ -46,6 +46,7 @@ class psm:
                  psm_metadata,
                  design_metadata,
                  label,
+                 is_labeled,
                  args):
         
         self.raw_sequence = raw_sequence
@@ -56,6 +57,7 @@ class psm:
         self.psm_metadata = psm_metadata
         self.design_metadata = design_metadata
         self.label = label
+        self.is_labeled = is_labeled
         self.AA_formulae = args.AA_formulae
         
         self.sequence = self.clean_seq(self.raw_sequence)
