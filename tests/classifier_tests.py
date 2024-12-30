@@ -7,6 +7,7 @@ Created on Sun Jul 14 15:39:24 2024
 """
 
 import unittest
+from collections import Counter
 
 import numpy as np
 # from scipy.optimize import minimize
@@ -115,6 +116,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
                 self.mz_err[missing] = np.nan
                 self.mz = np.array(range(self.N))*rng.uniform(200,2000)
                 self.label = label
+                self.is_labeled = bool(label)
 
         psms = [PSM(self.rng, '') for _ in range(500)] + [PSM(self.rng, 'C') for _ in range(500)]
         processed_data, processed_labels = self.model.preprocess(psms)
@@ -125,6 +127,9 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
             self.assertEqual(processed_data.shape[0], 1000)
         with self.subTest('ensure the data are shuffled'):
             self.assertAlmostEqual(np.sum(processed_labels[-500:])/1000, 0.5, delta = 0.2)
+        with self.subTest('make sure data work with classifier'):
+            self.model.fit(processed_data, processed_labels)
+            self.assertGreater(len(self.model.history['epochs']), 0)
 
     def test_winnowing_works(self):
         class PSM():
