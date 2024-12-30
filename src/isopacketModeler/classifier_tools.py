@@ -98,9 +98,8 @@ class classifier():
             interp_i = interp_i/np.nansum(interp_i)
             interp_mz = np.interp(x, psm.mz, mz_err)
             interp_mz = interp_mz/np.nansum(interp_mz)
-            data.append(np.concatenate((interp_i[:,np.newaxis,np.newaxis],interp_mz[:,np.newaxis,np.newaxis]), axis = 1))
-        data = np.concatenate(data, axis = 2)
-        data = np.swapaxes(data, 0, 2)
+            data.append(np.concatenate((interp_i[np.newaxis,:,np.newaxis],interp_mz[np.newaxis,:,np.newaxis]), axis = 2))
+        data = np.concatenate(data, axis = 0)
         labels = np.array([psm.is_labeled for psm in psms])
         return (data, labels)
 
