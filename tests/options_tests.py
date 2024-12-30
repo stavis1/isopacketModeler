@@ -37,7 +37,8 @@ class optionsTestSuite(unittest.TestCase):
                     'design_file',
                     'mzml_dir',
                     'psms',
-                    'cores']
+                    'cores',
+                    'data_generating_processes']
         for attr in required:
             tmp = self.args.__dict__[attr]
             del self.args.__dict__[attr]

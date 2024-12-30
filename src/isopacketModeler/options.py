@@ -71,7 +71,8 @@ class options:
                     'psms',
                     'cores',
                     'AA_formulae',
-                    'PSM_headers']
+                    'PSM_headers',
+                    'data_generating_processes']
         problems = [r for r in required if not r in self.__dict__.keys()]
         if problems:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)

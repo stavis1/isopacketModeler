@@ -46,3 +46,10 @@ cores = 0
 
 #The target false discovery rate for the isotope packet classifier
 classifier_fdr = 0.05
+
+#Each model in this list will be fit agaist all putatively enriched peptides.
+#The fitting process is slow so it is a good idea to run preliminary tests to decide which models are reasonable
+data_generating_processes = ['BetabinomQuiescentMix',
+			     'Betabinom',
+			     'BinomQuiescentMix',
+			     'Binom']
