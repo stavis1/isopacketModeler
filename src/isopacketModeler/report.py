@@ -12,6 +12,7 @@ def make_report(args, peptides):
     #serialize peptide objects
     with open(f'{args.output_directory}peptides.dill', 'wb') as dillfile:
         dill.dump(peptides, dillfile)
+    args.logs.debug(f'{len(peptides)} peptides have been saved.')
     
     #make fitted peptide table
     

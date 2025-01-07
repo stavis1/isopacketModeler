@@ -73,7 +73,7 @@ def initialize_psms(args, psm_data):
     
     # instantiate PSM objects
     psms = [psm(**d[1], args = args) for d in psm_data.iterrows()]
-    args.logs.info('PSM objects have been initialized.')
+    args.logs.info(f'{len(psms)} PSM objects have been initialized.')
     return psms
 
 def read_mzml(file):
@@ -101,8 +101,10 @@ def process_spectrum_data(args, psms):
 
     with Pool(args.cores) as p:
         result_psms = p.map(process_psm, args.mzml_files)
-
+    args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
+    
     #flatten results and filter bad psms
     psms = [p for file in result_psms for p in file if p.is_useable()]
+    args.logs.info(f'{len(psms)} PSMs have passed the initial usability filter.')
     return psms
 

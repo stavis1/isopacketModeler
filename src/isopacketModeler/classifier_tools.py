@@ -21,6 +21,7 @@ tf.config.set_visible_devices([], 'GPU')
 
 class classifier():
     def __init__(self, args):
+        self.args = args
         self.FDR = args.classifier_fdr
         self.cutoff = np.nan
         self.rng = np.random.default_rng(1)
@@ -82,6 +83,7 @@ class classifier():
     def winnow(self, X, psms):
         classes = self.predict(X)
         psms = [p for p,c in zip(psms, classes) if c == 1 and p.label]
+        self.args.logs.info(f'{len(psms)} PSMs have passed the classifier model filter.')
         return psms
 
     def preprocess(self, psms):
@@ -114,6 +116,7 @@ class classifier():
         X = X[fit_idx, :, :]
         y = y[fit_idx]
         
+        self.args.logs.debug(f'Fitting started. There are {X.shape[0]} elements in the training dataset and {X_cut.shape[0]} elements in the FDR control set.')
         #run the I-EM algorithm
         self._fit_one_step(X, y)
         for _ in range(niter):
@@ -123,6 +126,7 @@ class classifier():
         #do FDR control
         y = self.predict_proba(X_cut)[:,0]
         self._set_cutoff(targets = y[y_cut == 1], decoys = y[y_cut == 0])
+        self.args.logs.info('The classifier model has been fit.')
         return self
 
 

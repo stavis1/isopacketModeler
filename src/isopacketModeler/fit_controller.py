@@ -18,6 +18,7 @@ data_generating_processes = {'BetabinomQuiescentMix':BetabinomQuiescentMix,
 
 class peptide_fit_conroller():
     def __init__(self, args):
+        self.args = args
         self.DGPs = [data_generating_processes[p](args) for p in args.data_generating_processes]
         self.cores = args.cores
 
@@ -37,6 +38,7 @@ class peptide_fit_conroller():
             event.set()
 
     def fit_peptides(self, peptides):
+        self.args.logs.info('Peptide model fitting has started.')
         global all_peptides
         all_peptides = peptides
         
@@ -57,5 +59,6 @@ class peptide_fit_conroller():
         for peptide in peptides:
             self.model_selection(peptide)
         
+        self.args.logs.info(f'Models have been fit to {len(peptides)} peptides.')
         return peptides
 

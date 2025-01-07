@@ -26,7 +26,7 @@ psm_classifier.fit(psm_data, psm_labels)
 psms = psm_classifier.winnow(psm_data, psms)
 
 #Collect PSMs into peptide objects.
-peptides = initialize_peptides(psms)
+peptides = initialize_peptides(args, psms)
 
 #Fit models to peptide data.
 fit_controller = peptide_fit_conroller(args)
