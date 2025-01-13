@@ -104,7 +104,10 @@ class classifier():
         data = np.concatenate(data, axis = 0)
         labels = np.array([psm.is_labeled for psm in psms])
         return (data, labels)
-
+    
+    def _update_y(self, X, y_init):
+        return np.array(ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(self.predict_proba(X)[:,0], y_init))
+    
     def fit(self, X, y, niter = 1):
         y = copy(y)
 
@@ -116,12 +119,13 @@ class classifier():
         y_cut = y[cutoff_idx]
         X = X[fit_idx, :, :]
         y = y[fit_idx]
+        y_init = copy(y)
         
         self.args.logs.debug(f'Fitting started. There are {X.shape[0]} elements in the training dataset and {X_cut.shape[0]} elements in the FDR control set.')
         #run the I-EM algorithm
         self._fit_one_step(X, y)
         for _ in range(niter):
-            y = self.predict_proba(X)[:,0]
+            y = self._update_y(X, y_init)
             self._fit_one_step(X, y)
         
         #do FDR control
