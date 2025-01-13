@@ -106,7 +106,7 @@ class classifier():
         return (data, labels)
     
     def _update_y(self, X, y_init):
-        return np.array(ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(self.predict_proba(X)[:,0], y_init))
+        return np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(self.predict_proba(X)[:,0], y_init)])
     
     def fit(self, X, y, niter = 1):
         y = copy(y)
