@@ -110,7 +110,8 @@ class classifier():
 
         #split off sample of elements to estimate the FDR cutoff
         fit_idx = self.rng.choice(range(X.shape[0]), int(X.shape[0]*0.8), replace = False)
-        cutoff_idx = np.array([i for i in range(X.shape[0]) if not i in fit_idx])
+        fit_idx_set = set(fit_idx)
+        cutoff_idx = np.array([i for i in range(X.shape[0]) if not i in fit_idx_set])
         X_cut = X[cutoff_idx, :, :]
         y_cut = y[cutoff_idx]
         X = X[fit_idx, :, :]
