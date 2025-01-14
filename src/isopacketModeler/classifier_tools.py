@@ -31,16 +31,18 @@ class classifier():
         if 'model' in self.__dict__.keys():
             del self.model
         model = models.Sequential()
-        model.add(layers.Conv2D(32, (3, 2), activation='relu', input_shape=(256, 2, 1), padding='same'))
+        model.add(layers.Conv2D(10, (3, 2), activation='relu', input_shape=(256, 2, 1), padding='same'))
         model.add(layers.Dropout(0.1))
         model.add(layers.MaxPooling2D((2, 1)))
-        model.add(layers.Conv2D(64, (3, 2), activation='relu', padding='same'))
+        model.add(layers.Conv2D(10, (4, 10), activation='relu', padding='same'))
         model.add(layers.Dropout(0.1))
         model.add(layers.MaxPooling2D((2, 1)))
-        model.add(layers.Conv2D(64, (3, 2), activation='relu', padding='same'))
+        model.add(layers.Conv2D(10, (5, 10), activation='relu', padding='same'))
         model.add(layers.Flatten())
         model.add(layers.Dropout(0.1))
         model.add(layers.Dense(64, activation='relu'))
+        model.add(layers.Dropout(0.1))
+        model.add(layers.Dense(32, activation='relu'))
         model.add(layers.Dense(1, activation = 'sigmoid'))
         
         model.compile(optimizer='adam',
@@ -82,7 +84,7 @@ class classifier():
     
     def winnow(self, X, psms):
         classes = self.predict(X)
-        psms = [p for p,c in zip(psms, classes) if c == 1 and p.label]
+        psms = [p for p,c in zip(psms, classes) if c == 1 and p.is_labeled]
         self.args.logs.info(f'{len(psms)} PSMs have passed the classifier model filter.')
         return psms
 
