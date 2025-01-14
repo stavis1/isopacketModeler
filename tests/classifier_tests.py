@@ -136,6 +136,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
             def __init__(self, value, label):
                 self.value = value
                 self.label = 'C' if label != 0 else ''
+                self.is_labeled = bool(self.label)
         
         ctrl = self.make_false_data(self.rng)
         obs = np.concatenate((self.make_false_data(self.rng),
