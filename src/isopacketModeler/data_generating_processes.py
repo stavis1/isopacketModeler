@@ -13,11 +13,12 @@ import numpy as np
 rng = np.random.default_rng(1)
 
 class results():
-    def __init__(self, minimizer_results, dgp_name):
-        self.__dict__.update(minimizer_results.__dict__)
+    def __init__(self, minimizer_results, dgp_name, fitted_dist):
+        self.__dict__.update({k:v for k,v in minimizer_results.__dict__.items() if not k.startswith('__')})
         self.params = minimizer_results.x
         self.fit = minimizer_results.fun
         self.dgp_name = dgp_name
+        self.fitted_dist = fitted_dist
 
 class DataGeneratingProcess():
     def __init__(self, args):
@@ -50,7 +51,7 @@ class DataGeneratingProcess():
                               T=2,
                               minimizer_kwargs = args,
                               take_step = self.take_step)
-        return results(result, self.name)
+        return results(result, self.name, self.expected(peptide, result.x))
 
 class BBRandomDisplacementBounds(object):
     """random displacement with bounds for betabinomial models"""
