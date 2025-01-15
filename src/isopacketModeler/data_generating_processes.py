@@ -13,12 +13,13 @@ import numpy as np
 rng = np.random.default_rng(1)
 
 class results():
-    def __init__(self, minimizer_results, dgp_name, fitted_dist):
+    def __init__(self, dgp, peptide, minimizer_results):
         self.__dict__.update({k:v for k,v in minimizer_results.__dict__.items() if not k.startswith('__')})
         self.params = minimizer_results.x
         self.fit = minimizer_results.fun
-        self.dgp_name = dgp_name
-        self.fitted_dist = fitted_dist
+        self.dgp_name = dgp.name
+        self.fitted_dist = dgp.expected(peptide, minimizer_results.x)
+        self.__dict__.update(dgp.extra_data(peptide, minimizer_results))
 
 class DataGeneratingProcess():
     def __init__(self, args):
@@ -40,6 +41,9 @@ class DataGeneratingProcess():
     
     def get_x0(self, peptide):
         raise NotImplementedError()
+    
+    def extra_data(self, peptide, result):
+        return {}
 
     def fit(self, peptide):
         x_0 = self.get_x0(peptide)
@@ -51,7 +55,7 @@ class DataGeneratingProcess():
                               T=2,
                               minimizer_kwargs = args,
                               take_step = self.take_step)
-        return results(result, self.name, self.expected(peptide, result.x))
+        return results(self, peptide, result)
 
 class BBRandomDisplacementBounds(object):
     """random displacement with bounds for betabinomial models"""
@@ -81,6 +85,12 @@ class BetabinomQuiescentMix(DataGeneratingProcess):
                        (1,100)]
         self.take_step = BBRandomDisplacementBounds(self.bounds)
     
+    def extra_data(self, peptide, result):
+        frac, a, b = result.x
+        mean = a/(a+b)
+        variance = (a*b)/(((a+b)**2)*(a+b+1))
+        return {'mean':mean, 'variance':variance}
+    
     def get_x0(self, peptide):
         return [0.5,4,3]
     
@@ -103,9 +113,15 @@ class Betabinom(DataGeneratingProcess):
                        (1,100)]
         self.take_step = BBRandomDisplacementBounds(self.bounds)
     
+    def extra_data(self, peptide, result):
+        a, b = result.x
+        mean = a/(a+b)
+        variance = (a*b)/(((a+b)**2)*(a+b+1))
+        return {'mean':mean, 'variance':variance}
+    
     def get_x0(self, peptide):
         return [4,3]
-    
+
     def expected(self, peptide, params):
         label = betabinom.pmf(k = range(peptide.formula[peptide.label]),
                               n = peptide.formula[peptide.label],
