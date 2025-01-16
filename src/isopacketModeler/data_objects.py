@@ -195,13 +195,13 @@ class peptide:
             return type(elm) == 'str' or not hasattr(elm, '__iter__')
         
         fields = defaultdict(lambda:None)
-        fields.update({k:v for k,v in self.__dict__ if good_elm(v)})
+        fields.update({k:v for k,v in self.__dict__.items() if good_elm(v)})
         fields.update(self.design_metadata)
         fields['canonical_fit_DGP'] = self.canonical_fit.dgp_name
-        fields.update({f'canonical_{k}':v for k,v in self.canonical_fit.__dict__ if good_elm(v)})
+        fields.update({f'canonical_{k}':v for k,v in self.canonical_fit.__dict__.items() if good_elm(v)})
         fields.update({f'canonical_param{i}':v for i,v in enumerate(self.canonical_fit.params)})
         for dgp in self.fit_results:
-            fields.update({f'{dgp.dgp_name}_{k}':v for k,v in dgp.__dict__ if good_elm(v)})
+            fields.update({f'{dgp.dgp_name}_{k}':v for k,v in dgp.__dict__.items() if good_elm(v)})
             fields.update({f'{dgp.dgp_name}_param{i}':v for i,v in enumerate(dgp.params)})           
         return fields
 
