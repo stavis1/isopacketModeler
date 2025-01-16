@@ -50,7 +50,7 @@ class classifier():
                       metrics=['accuracy', tf.keras.metrics.RecallAtPrecision(0.99)])
         return model
 
-    def _fit_one_step(self, X, y, epochs = 5):
+    def _fit_one_step(self, X, y, epochs = 7):
         self.model = self._get_model()
         history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
         for key in history.history:
@@ -111,7 +111,7 @@ class classifier():
         ŷ = self.predict_proba(X)[:,0]
         return np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(ŷ, y_init)])
     
-    def fit(self, X, y, niter = 1):
+    def fit(self, X, y, niter = 5):
         y = copy(y)
 
         #split off sample of elements to estimate the FDR cutoff
