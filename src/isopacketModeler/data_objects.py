@@ -16,9 +16,14 @@ from brainpy import isotopic_variants
 from sortedcontainers import SortedList
 
 
-Δm = {'H':1.00627699,
-      'C':1.00334999,
-      'N':0.99704}
+Δm = {'H[2]':1.0062767458900002,
+      'C[13]':1.0033548350700006,
+      'N[15]':0.9970348944500014,
+      'O[17]':1.0042171369299986,
+      'O[18]':2.0042449932900013,
+      'S[33]':0.9993877353999991,
+      'S[34]':1.9957958295999987,
+      'S[36]':3.9950095355999977}
 
 class hashabledict(dict):   
     def __hash__(self):
@@ -57,6 +62,7 @@ class psm:
         self.psm_metadata = psm_metadata
         self.design_metadata = design_metadata
         self.label = label
+        self.label_elm = re.search(r'[A-Z][a-z]?', label).group()
         self.is_labeled = is_labeled
         self.AA_formulae = args.AA_formulae
         
@@ -68,7 +74,7 @@ class psm:
             self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
         self.formula = self.calc_formula()
         self.mz = self.calc_mz()
-        subformula = self.formula.omit(self.label)
+        subformula = self.formula.omit(self.label_elm)
         self.background = isotope_packet(subformula, self.charge)
         unenriched = isotope_packet(self.formula, self.charge)
         self.unenriched = np.concatenate((unenriched, np.zeros(len(self.mz)-len(unenriched))))
@@ -86,12 +92,9 @@ class psm:
     def calc_mz(self):
         mz_0 = isotopic_variants(self.formula, npeaks=1, charge = self.charge)[0].mz
         init_mz = [p.mz for p in isotopic_variants(self.formula, npeaks=6, charge = self.charge)]
-        mz = mz_0 + ((np.asarray(range(len(init_mz), self.formula[self.label] + 1))*Δm[self.label])/self.charge)
+        mz = mz_0 + ((np.asarray(range(len(init_mz), self.formula[self.label_elm] + 1))*Δm[self.label])/self.charge)
         comp = copy(self.formula)
-        if self.label == 'C':
-            comp['C[13]'] = comp.pop('C')
-        elif self.label == 'N':
-            comp['N[15]'] = comp.pop('N')
+        comp[self.label] = comp.pop(self.label_elm)
         terminal_mz = [p.mz for p in isotopic_variants(comp, npeaks = 30, charge = self.charge)][1:]
         mz = np.concatenate((init_mz, mz, terminal_mz), axis = None)
         return mz
@@ -140,6 +143,7 @@ class peptide:
         self.sequence = psm.sequence
         self.raw_sequence = psm.raw_sequence
         self.label = psm.label
+        self.label_elm = psm.label_elm
         self.formula = psm.formula
         self.mz = psm.mz
         self.background = psm.background

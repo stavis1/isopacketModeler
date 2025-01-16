@@ -135,7 +135,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         class PSM():
             def __init__(self, value, label):
                 self.value = value
-                self.label = 'C' if label != 0 else ''
+                self.label = 'C[13]' if label != 0 else ''
                 self.is_labeled = bool(self.label)
         
         ctrl = self.make_false_data(self.rng)
@@ -153,7 +153,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         new_obs = np.concatenate((self.make_false_data(self.rng),
                                   self.make_true_data(self.rng)), axis = 0)
         new_data = np.concatenate((new_ctrl, new_obs), axis = 0)
-        new_label = [(0,'')]*self.N + [(0, 'C')]*self.N + [(1, 'C')]*self.N
+        new_label = [(0,'')]*self.N + [(0, 'C[13]')]*self.N + [(1, 'C[13]')]*self.N
         new_label = [PSM(*l) for l in new_label]
         filtered_labels = self.model.winnow(new_data, new_label)
         

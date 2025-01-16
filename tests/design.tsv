@@ -1,4 +1,4 @@
 file	label	time	condition
-test1	C	1	A
+test1	C[13]	1	A
 test2		1	A
-test3	N	1	A
+test3	N[15]	1	A

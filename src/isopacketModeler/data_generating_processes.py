@@ -95,8 +95,8 @@ class BetabinomQuiescentMix(DataGeneratingProcess):
         return [0.5,4,3]
     
     def expected(self, peptide, params):
-        label = betabinom.pmf(k = range(peptide.formula[peptide.label]),
-                              n = peptide.formula[peptide.label],
+        label = betabinom.pmf(k = range(peptide.formula[peptide.label_elm]),
+                              n = peptide.formula[peptide.label_elm],
                               a = params[1],
                               b = params[2])
         exp = np.convolve(label, peptide.background)
@@ -123,8 +123,8 @@ class Betabinom(DataGeneratingProcess):
         return [4,3]
 
     def expected(self, peptide, params):
-        label = betabinom.pmf(k = range(peptide.formula[peptide.label]),
-                              n = peptide.formula[peptide.label],
+        label = betabinom.pmf(k = range(peptide.formula[peptide.label_elm]),
+                              n = peptide.formula[peptide.label_elm],
                               a = params[0],
                               b = params[1])
         exp = np.convolve(label, peptide.background)
@@ -160,8 +160,8 @@ class BinomQuiescentMix(DataGeneratingProcess):
         return [0.5,0.5]
     
     def expected(self, peptide, params):
-        label = binom.pmf(k = range(peptide.formula[peptide.label]),
-                          n = peptide.formula[peptide.label],
+        label = binom.pmf(k = range(peptide.formula[peptide.label_elm]),
+                          n = peptide.formula[peptide.label_elm],
                           p = params[1])
         exp = np.convolve(label, peptide.background)
         exp = peptide.reshape(exp)
@@ -180,8 +180,8 @@ class Binom(DataGeneratingProcess):
         return [0.5]
     
     def expected(self, peptide, params):
-        label = binom.pmf(k = range(peptide.formula[peptide.label]),
-                          n = peptide.formula[peptide.label],
+        label = binom.pmf(k = range(peptide.formula[peptide.label_elm]),
+                          n = peptide.formula[peptide.label_elm],
                           p = params[0])
         exp = np.convolve(label, peptide.background)
         exp = peptide.reshape(exp)

@@ -48,7 +48,7 @@ class initializePSMsTestSuite(base_test_classes.InitializedPSMsTestSuite):
         with self.subTest('Check the proteins are corret'):
             self.assertListEqual([p.proteins for p in psms], ['TESTPROT']*N)
         with self.subTest('Check the labels are corret'):
-            self.assertListEqual([p.label for p in psms], ['C']*N)
+            self.assertListEqual([p.label for p in psms], ['C[13]']*N)
         
         ref_formula = {'C':16, 'H':28, 'N':4, 'O':10, 'S':0, 'Se':0}
         for elm in ref_formula.keys():
@@ -62,7 +62,7 @@ class initializePSMsTestSuite(base_test_classes.InitializedPSMsTestSuite):
         with self.subTest('Check the number of PSMS'):
             self.assertEqual(len(psms), self.N*2)
         with self.subTest('Check both labels are used'):
-            self.assertListEqual([p.label for p in psms], ['C']*self.N + ['N']*self.N)
+            self.assertListEqual([p.label for p in psms], ['C[13]']*self.N + ['N[15]']*self.N)
 
 class mzmlReaderTestSuite(base_test_classes.ParsedOptionsTestSuite):
     def test_mzml_reader_extracts_ms1s(self):
