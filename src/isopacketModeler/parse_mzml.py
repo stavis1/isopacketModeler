@@ -99,7 +99,7 @@ def process_spectrum_data(args, psms):
     global PSM_list
     PSM_list = psms
 
-    with Pool(args.cores) as p:
+    with Pool(args.parallel_mzml) as p:
         result_psms = p.map(process_psm, args.mzml_files)
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
     

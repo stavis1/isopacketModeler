@@ -38,6 +38,9 @@ class optionsTestSuite(unittest.TestCase):
                     'mzml_dir',
                     'psms',
                     'cores',
+                    'parallel_mzml',
+                    'AA_formulae',
+                    'PSM_headers',
                     'data_generating_processes']
         for attr in required:
             tmp = self.args.__dict__[attr]

@@ -25,6 +25,8 @@ class options:
         self.parse_design()
         if self.cores < 1:
             self.cores = os.cpu_count()
+        if self.parallel_mzml < 1:
+            self.parallel_mzml = self.cores
     
     def parse_args(self):
         parser = ArgumentParser()
@@ -70,6 +72,7 @@ class options:
                     'mzml_dir',
                     'psms',
                     'cores',
+                    'parallel_mzml',
                     'AA_formulae',
                     'PSM_headers',
                     'data_generating_processes']

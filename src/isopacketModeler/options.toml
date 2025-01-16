@@ -40,9 +40,12 @@ PSM_headers = ['Annotated Sequence',
 #If you need elements not listed in the default file add a column with their elemental symbol as the header
 AA_formulae = 'AA_formulae.tsv'
 
-#the allowed number of CPU cores to use
+#The allowed number of CPU cores to use
 #0 means all available cores
 cores = 0
+
+#The number of mzML files to parse in parallel. This is the most RAM intensive step. 0 sets this equal to cores.
+parallel_mzml = 0
 
 #The target false discovery rate for the isotope packet classifier
 classifier_fdr = 0.05
