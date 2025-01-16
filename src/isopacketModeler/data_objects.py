@@ -197,6 +197,14 @@ class peptide:
         fields = defaultdict(lambda:None)
         fields.update({k:v for k,v in self.__dict__.items() if good_elm(v)})
         fields.update(self.design_metadata)
+        fields['PSM_count'] = len(self.psm_metadata)
+        psm_metadata_cols = set(k for m in self.psm_metadata for k in m.keys())
+        for metadata_col in psm_metadata_cols:
+            vals = [m[metadata_col] for m in self.psm_metadata]
+            if np.all(np.isreal(vals)):
+                fields[f'PSMs_mean_{metadata_col}'] = np.mean(vals)
+            else:
+                fields[f'PSMs_unique_{metadata_col}'] = ';'.join([str(v) for v in set(vals)])
         fields['canonical_fit_DGP'] = self.canonical_fit.dgp_name
         fields.update({f'canonical_{k}':v for k,v in self.canonical_fit.__dict__.items() if good_elm(v)})
         fields.update({f'canonical_param{i}':v for i,v in enumerate(self.canonical_fit.params)})
