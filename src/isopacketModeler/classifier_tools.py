@@ -6,7 +6,7 @@ Created on Tue Mar 12 13:29:55 2024
 @author: 4vt
 """
 from copy import copy
-from collections import defaultdict
+from collections import defaultdict, Counter
 import os
 import logging
 
@@ -31,22 +31,22 @@ class classifier():
         if 'model' in self.__dict__.keys():
             del self.model
         model = models.Sequential()
-        model.add(layers.Conv2D(10, (3, 2), activation='relu', input_shape=(256, 2, 1), padding='same'))
+        model.add(layers.Conv2D(5, (3, 2), activation='relu', input_shape=(256, 2, 1), padding='same'))
         model.add(layers.Dropout(0.1))
         model.add(layers.MaxPooling2D((2, 1)))
-        model.add(layers.Conv2D(10, (4, 10), activation='relu', padding='same'))
+        model.add(layers.Conv2D(5, (4, 5), activation='relu', padding='same'))
         model.add(layers.Dropout(0.1))
         model.add(layers.MaxPooling2D((2, 1)))
-        model.add(layers.Conv2D(10, (5, 10), activation='relu', padding='same'))
+        model.add(layers.Conv2D(5, (4, 5), activation='relu', padding='same'))
         model.add(layers.Flatten())
         model.add(layers.Dropout(0.1))
-        model.add(layers.Dense(64, activation='relu'))
+        model.add(layers.Dense(50, activation='relu'))
         model.add(layers.Dropout(0.1))
-        model.add(layers.Dense(32, activation='relu'))
+        model.add(layers.Dense(50, activation='relu'))
         model.add(layers.Dense(1, activation = 'sigmoid'))
         
         model.compile(optimizer='adam',
-                      loss=tf.keras.losses.BinaryCrossentropy(),
+                      loss=tf.keras.losses.MeanSquaredError(),
                       metrics=['accuracy', tf.keras.metrics.RecallAtPrecision(0.99)])
         return model
 
@@ -107,11 +107,14 @@ class classifier():
         labels = np.array([psm.is_labeled for psm in psms])
         return (data, labels)
     
-    def _update_y(self, X, y_init):
+    def _update_y(self, X, y_init, y_current):
         ŷ = self.predict_proba(X)[:,0]
-        return np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(ŷ, y_init)])
+        if Counter([round(ŷ_i, 4) for ŷ_i in ŷ]).most_common(1)[0][1] > len(ŷ)/10:
+            return y_current
+        ŷ =  np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(ŷ, y_init)])
+        return ŷ
     
-    def fit(self, X, y, niter = 5):
+    def fit(self, X, y, niter = 7):
         y = copy(y)
 
         #split off sample of elements to estimate the FDR cutoff
@@ -128,7 +131,7 @@ class classifier():
         #run the I-EM algorithm
         self._fit_one_step(X, y)
         for _ in range(niter):
-            y = self._update_y(X, y_init)
+            y = self._update_y(X, y_init, y)
             self._fit_one_step(X, y)
         
         #do FDR control
