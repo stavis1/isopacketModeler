@@ -19,5 +19,3 @@ def make_report(args, peptides):
     report = pd.DataFrame([p.report() for p in peptides])
     report.to_csv(f'{args.output_directory}peptides.tsv', sep = '\t', index = False)
     
-    #make plots
-    

@@ -209,7 +209,7 @@ class peptide:
                 fields[f'PSMs_mean_{metadata_col}'] = np.mean(vals)
             else:
                 fields[f'PSMs_unique_{metadata_col}'] = ';'.join([str(v) for v in set(vals)])
-        fields['canonical_fit_DGP'] = self.canonical_fit.dgp_name
+        fields['canonical_DGP'] = self.canonical_fit.dgp_name
         fields.update({f'canonical_{k}':v for k,v in self.canonical_fit.__dict__.items() if good_elm(v)})
         fields.update({f'canonical_param{i}':v for i,v in enumerate(self.canonical_fit.params)})
         for dgp in self.fit_results:
