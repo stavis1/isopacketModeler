@@ -59,6 +59,9 @@ class peptide_fit_conroller():
         for peptide in peptides:
             self.model_selection(peptide)
         
+        #prune poorly fitting peptides
+        peptides = [p for p in peptides if p.canonical_fit.fit < self.args.max_peptide_err]
+        
         self.args.logs.info(f'Models have been fit to {len(peptides)} peptides.')
         return peptides
 
