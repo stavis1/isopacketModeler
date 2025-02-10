@@ -60,3 +60,9 @@ data_generating_processes = ['BetabinomQuiescentMix',
 #Peptides with a model fit error above this value will not be reported.
 max_peptide_err = 0.015
 
+#Whether to do a preliminary classification for isotope enrichment. This massively speeds up searching.
+do_PSM_classification = true
+
+
+
+
