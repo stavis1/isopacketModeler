@@ -199,6 +199,8 @@ class peptide:
             return type(elm) == 'str' or not hasattr(elm, '__iter__')
         
         fields = defaultdict(lambda:None)
+        fields['peptide'] = self.psms[0].raw_sequence
+        fields['proteins'] = self.psms[0].proteins
         fields.update({k:v for k,v in self.__dict__.items() if good_elm(v)})
         fields.update(self.design_metadata)
         fields['PSM_count'] = len(self.psm_metadata)
