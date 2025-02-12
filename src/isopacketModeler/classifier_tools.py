@@ -85,8 +85,9 @@ class classifier():
     def winnow(self, X, psms):
         classes = self.predict(X)
         psms = [p for p,c in zip(psms, classes) if c == 1 and p.is_labeled]
+        bad_psms = [p for p,c in zip(psms, classes) if c != 1 and p.is_labeled]
         self.args.logs.info(f'{len(psms)} PSMs have passed the classifier model filter.')
-        return psms
+        return (psms, bad_psms)
 
     def preprocess(self, psms):
         data = []
