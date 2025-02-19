@@ -134,7 +134,17 @@ class psm:
         self.mz_err = np.nanmean(all_errs, axis = 0).tolist()
     
     def is_useable(self):
-        return np.sum(np.isfinite(self.intensity)) > 5
+        finite = np.isfinite(self.intensity)
+        if np.sum(finite) > 5:
+            run = 0
+            for i in finite:
+                if i:
+                    run += 1
+                else:
+                    run = 0
+                if run > 4:
+                    return True
+        return False
 
 class peptide:
     def __init__(self, psms):
