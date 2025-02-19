@@ -184,6 +184,7 @@ class peptide:
         badpts = Δinterp > cutoff
         badpts[0] = False
         vals[badpts] = np.full(len(vals),np.nan)[badpts]
+        vals = vals/np.nansum(vals)
         return vals
     
     def reshape(self, arr):
