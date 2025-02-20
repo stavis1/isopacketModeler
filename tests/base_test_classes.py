@@ -132,7 +132,7 @@ class DataGeneratingProcessTestSuite(InitializedPSMsTestSuite):
         pep.fit_results.append(self.DGP.fit(pep))
         with self.subTest('test that fit is good'):
             self.assertLess(pep.fit_results[0].fit, 0.01)
-        for truth, fitted in zip(self.reasonable_params, pep.fit_results[0].params):
+        for truth, fitted in zip(self.reasonable_params, pep.fit_results[0].params, strict = True):
             with self.subTest('test that parameters are recovered'):
                 self.assertAlmostEqual(truth, fitted, delta = 0.001)
         

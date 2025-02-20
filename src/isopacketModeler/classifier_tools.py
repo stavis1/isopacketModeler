@@ -64,7 +64,7 @@ class classifier():
         decoy_scale = ntarget/ndecoy
         ŷ = list(decoys) + list(targets)
         y = [0]*ndecoy + [1]*ntarget
-        observations = sorted(zip(ŷ,y), reverse = True)
+        observations = sorted(zip(ŷ,y, strict = True), reverse = True)
         exp_fdr = (ndecoy*decoy_scale)/ntarget
         while exp_fdr > self.FDR:
             elm = observations.pop()
@@ -84,10 +84,10 @@ class classifier():
     
     def winnow(self, X, psms):
         classes = self.predict(X)
-        psms = [p for p,c in zip(psms, classes) if c == 1 and p.is_labeled]
-        bad_psms = [p for p,c in zip(psms, classes) if c != 1 and p.is_labeled]
+        good_psms = [p for p,c in zip(psms, classes, strict = True) if c == 1 and p.is_labeled]
+        bad_psms = [p for p,c in zip(psms, classes, strict = True) if c != 1 and p.is_labeled]
         self.args.logs.info(f'{len(psms)} PSMs have passed the classifier model filter.')
-        return (psms, bad_psms)
+        return (good_psms, bad_psms)
 
     def preprocess(self, psms):
         data = []
@@ -112,7 +112,7 @@ class classifier():
         ŷ = self.predict_proba(X)[:,0]
         if Counter([round(ŷ_i, 4) for ŷ_i in ŷ]).most_common(1)[0][1] > len(ŷ)/10:
             return y_current
-        ŷ =  np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(ŷ, y_init)])
+        ŷ =  np.array([ŷ_i if yinit_i else yinit_i for ŷ_i,yinit_i in zip(ŷ, y_init, strict = True)])
         return ŷ
     
     def fit(self, X, y, niter = 7):

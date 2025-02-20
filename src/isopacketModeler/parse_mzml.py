@@ -24,7 +24,7 @@ def parse_PSMs(args):
                     'scan',
                     'charge', 
                     'proteinIds']
-    column_map = {n:c for n,c in zip(column_names, args.PSM_headers[:len(column_names)])}
+    column_map = {n:c for n,c in zip(column_names, args.PSM_headers[:len(column_names)], strict = True)}
     
     psm_data = []
     for file in args.psms:
@@ -39,7 +39,7 @@ def parse_PSMs(args):
     
     #add arbitrary columns listed in the optios file as a metadata dictionary
     if len(args.PSM_headers) > 5:
-        psm_metadata = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in psm_data[args.PSM_headers[5:]].iterrows()]
+        psm_metadata = [{k:v for k,v in zip(d[1].keys(), d[1].values, strict = True)} for d in psm_data[args.PSM_headers[5:]].iterrows()]
     else:
         psm_metadata = [{}]*psm_data.shape[0]
     psm_data['psm_metadata'] = psm_metadata
@@ -56,7 +56,7 @@ def initialize_psms(args, psm_data):
 
     #add design metadata dictionaries to PSMs    
     metadata = design_data.loc[[base_name(f) for f in psm_data['file']]]
-    psm_data['design_metadata'] = [{k:v for k,v in zip(d[1].keys(), d[1].values)} for d in metadata.iterrows()]
+    psm_data['design_metadata'] = [{k:v for k,v in zip(d[1].keys(), d[1].values, strict = True)} for d in metadata.iterrows()]
     psm_data['label'] = [m['label'] for m in psm_data['design_metadata']]
     psm_data['is_labeled'] = [bool(l) for l in psm_data['label']]
     

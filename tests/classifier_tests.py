@@ -7,10 +7,8 @@ Created on Sun Jul 14 15:39:24 2024
 """
 
 import unittest
-from collections import Counter
 
 import numpy as np
-# from scipy.optimize import minimize
 from scipy.stats import norm
 
 from isopacketModeler.classifier_tools import classifier
@@ -39,15 +37,9 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         def err(x, m1, m2, s1, s2, target_FDR):
             return np.square(exp_fdr(x, m1, m2, s1, s2) - target_FDR)
 
-        # x_0 = 0
         m1, s1 = 0, 1
         m2, s2 = 2, 1
         target_FDR = self.model.FDR
-        
-        # result = minimize(err, 
-        #                   x0 = x_0,
-        #                   args = (m1,m2,s1,s2,target_FDR))
-        # target_cutoff = result.x[0]
         
         decoys = self.rng.normal(m1, s1, self.N)
         targets = np.concatenate((self.rng.normal(m1, s1, self.N), self.rng.normal(m2, s2, self.N)))
@@ -133,10 +125,11 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
 
     def test_winnowing_works(self):
         class PSM():
-            def __init__(self, value, label):
+            def __init__(self, value, label, rng):
                 self.value = value
                 self.label = 'C[13]' if label != 0 else ''
                 self.is_labeled = bool(self.label)
+                self.idx = rng.random()
         
         ctrl = self.make_false_data(self.rng)
         obs = np.concatenate((self.make_false_data(self.rng),
@@ -153,14 +146,17 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         new_obs = np.concatenate((self.make_false_data(self.rng),
                                   self.make_true_data(self.rng)), axis = 0)
         new_data = np.concatenate((new_ctrl, new_obs), axis = 0)
-        new_label = [(0,'')]*self.N + [(0, 'C[13]')]*self.N + [(1, 'C[13]')]*self.N
+        new_label = [(0,'', self.rng)]*self.N + [(0, 'C[13]', self.rng)]*self.N + [(1, 'C[13]', self.rng)]*self.N
         new_label = [PSM(*l) for l in new_label]
         filtered_labels, bad_psms = self.model.winnow(new_data, new_label)
+        good_idxs = set(p.idx for p in filtered_labels)
         
         with self.subTest('test that winnowed data are FDR controlled'):
             self.assertLess(np.sum([l.value for l in filtered_labels] == 0)/len(filtered_labels), self.model.FDR + 0.02)
         with self.subTest('test that winnowing has acceptable sensitivity'):
             self.assertGreater(np.sum([l.value for l in filtered_labels])/self.N, 0.8)
+        with self.subTest('are good and bad PSMs disjoint subsets?'):
+            self.assertFalse(any(p.idx in good_idxs for p in bad_psms))
 
 if __name__ == '__main__':
     unittest.main()

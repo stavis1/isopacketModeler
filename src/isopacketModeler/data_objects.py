@@ -71,7 +71,7 @@ class psm:
 
         with open(self.AA_formulae, 'r') as tsv:
             cols = tsv.readline().strip().split('\t')
-            self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:])} for l in tsv}
+            self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:], strict = True)} for l in tsv}
         self.formula = self.calc_formula()
         self.mz = self.calc_mz()
         subformula = self.formula.omit(self.label_elm)
@@ -124,9 +124,9 @@ class psm:
         all_peaks = []
         all_errs = []
         for i,scan in scans:
-            peak_list = SortedList(zip(scan.mz, scan.i))
+            peak_list = SortedList(zip(scan.mz, scan.i, strict = True))
             peaks = [self.mymin(peak_list, mz) for mz in self.mz]
-            mz_errs = np.asarray([mz - p[0] for p,mz in zip(peaks,self.mz)])
+            mz_errs = np.asarray([mz - p[0] for p,mz in zip(peaks,self.mz, strict = True)])
             all_errs.append(mz_errs)
             peaks = np.asarray([p[1] for p in peaks])
             all_peaks.append(peaks)
@@ -185,7 +185,7 @@ class peptide:
             odd_interp = np.concatenate((odd_interp,[np.nan]))
         else:
             resize = False
-        interp = [v for pair in zip(even_interp, odd_interp) for v in pair]
+        interp = [v for pair in zip(even_interp, odd_interp, strict = True) for v in pair]
         if resize:
             interp = interp[:-1]
         Δinterp = vals - interp

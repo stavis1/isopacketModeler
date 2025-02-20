@@ -53,7 +53,7 @@ class peptide_fit_conroller():
                       initargs=(shared_event,)) as p:
                 results = p.map(self.fit_all_DGPs, range(len(all_peptides)))
             
-        for peptide, result in zip(peptides, results):
+        for peptide, result in zip(peptides, results, strict = True):
             peptide.fit_results = result
         
         for peptide in peptides:

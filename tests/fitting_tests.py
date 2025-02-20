@@ -86,7 +86,7 @@ class FitControllerTestSuite(base_test_classes.InitializedPSMsTestSuite):
                 self.assertEqual(pep.canonical_fit.dgp_name, 'BetabinomQuiescentMix')
             with self.subTest('were the fits good'):
                 self.assertLess(pep.canonical_fit.fit, 0.01)
-            for truth, fitted in zip(np.array([0.5,4,3]), pep.canonical_fit.params):
+            for truth, fitted in zip(np.array([0.5,4,3]), pep.canonical_fit.params, strict = True):
                 with self.subTest('werer the correct parameters recovered'):
                     self.assertAlmostEqual(truth, fitted, delta = 0.001)
     
@@ -108,7 +108,7 @@ class FitControllerTestSuite(base_test_classes.InitializedPSMsTestSuite):
         fit_controller.fit_all_DGPs.__globals__['event'] = event
         
         global all_peptides
-        for DGP_name, param in zip(DGPs, params):
+        for DGP_name, param in zip(DGPs, params, strict = True):
             DGP = data_generating_processes[DGP_name](self.args)
             pep = self.make_peptide(DGP, param)
             all_peptides = [pep]

@@ -120,7 +120,7 @@ class processPSMtestSuite(base_test_classes.InitializedPSMsTestSuite):
         spectrum = isotopic_variants(PSM_list[0].formula, npeaks = 6, charge = PSM_list[0].charge)
         mz = [p.mz for p in spectrum]
         intensity = [p.intensity for p in spectrum]
-        good_peaks = set(zip(mz, intensity))
+        good_peaks = set(zip(mz, intensity, strict = True))
         N = 100
         mz += list(rng.uniform(0,100,N))
         intensity += list(rng.uniform(0,100,N))
@@ -145,7 +145,7 @@ class processPSMtestSuite(base_test_classes.InitializedPSMsTestSuite):
             N_real_peaks = len([p for p in results[0].intensity if np.isfinite(p)])
             self.assertEqual(N_real_peaks, len(good_peaks))
         
-        for peak in list(zip(results[0].mz, results[0].intensity))[:len(good_peaks)]:
+        for peak in list(zip(results[0].mz, results[0].intensity, strict = True))[:len(good_peaks)]:
             closest = min(good_peaks, key = lambda x: abs(x[0] - peak[0]))
             with self.subTest('test mz close enough'):
                 self.assertAlmostEqual(closest[0], peak[0])
@@ -161,7 +161,7 @@ class processPSMtestSuite(base_test_classes.InitializedPSMsTestSuite):
         spectrum = isotopic_variants(PSM_list[0].formula, npeaks = 6, charge = PSM_list[0].charge)
         mz = [p.mz for p in spectrum]
         intensity = [p.intensity for p in spectrum]
-        good_peaks = set(zip(mz, intensity))
+        good_peaks = set(zip(mz, intensity, strict = True))
         N = 100
         mz += list(rng.uniform(0,100,N))
         intensity += list(rng.uniform(0,100,N))
@@ -199,7 +199,7 @@ class processSpectrumDataTestSuite(base_test_classes.InitializedPSMsTestSuite):
         spectrum = isotopic_variants(PSM_list[0].formula, npeaks = 6, charge = PSM_list[0].charge)
         mz = [p.mz for p in spectrum]
         intensity = [p.intensity for p in spectrum]
-        good_peaks = set(zip(mz, intensity))
+        good_peaks = set(zip(mz, intensity, strict = True))
         N = 100
         mz += list(rng.uniform(0,100,N))
         intensity += list(rng.uniform(0,100,N))
