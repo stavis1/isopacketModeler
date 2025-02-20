@@ -155,7 +155,7 @@ class ClassifierTestSuite(base_test_classes.ParsedOptionsTestSuite):
         new_data = np.concatenate((new_ctrl, new_obs), axis = 0)
         new_label = [(0,'')]*self.N + [(0, 'C[13]')]*self.N + [(1, 'C[13]')]*self.N
         new_label = [PSM(*l) for l in new_label]
-        filtered_labels = self.model.winnow(new_data, new_label)
+        filtered_labels, bad_psms = self.model.winnow(new_data, new_label)
         
         with self.subTest('test that winnowed data are FDR controlled'):
             self.assertLess(np.sum([l.value for l in filtered_labels] == 0)/len(filtered_labels), self.model.FDR + 0.02)

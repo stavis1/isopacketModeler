@@ -11,7 +11,7 @@ from isopacketModeler.make_peptides import fingerprint, initialize_peptides
 
 class MakePepetidesTestSuite(base_test_classes.ProcessedPSMsTestSuite):
     def test_nonsimilar_PSMs_arent_merged(self):
-        peptides = initialize_peptides(self.args, self.psms)
+        peptides = initialize_peptides(self.args, self.psms, [])
         with self.subTest('check the right number of peptides is generated'):
             self.assertEqual(len(peptides), len(self.psms))
         with self.subTest('check that all psms were included as peptides'):
@@ -24,7 +24,7 @@ class MakePepetidesTestSuite(base_test_classes.ProcessedPSMsTestSuite):
 
     def test_similar_PSMs_are_merged(self):
         psms = list(self.psms)*5
-        peptides = initialize_peptides(self.args, psms)
+        peptides = initialize_peptides(self.args, psms, [])
         with self.subTest('check the right number of peptides is generated'):
             self.assertEqual(len(peptides), len(self.psms))
         with self.subTest('check that all psms were included as peptides'):
