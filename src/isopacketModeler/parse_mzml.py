@@ -6,7 +6,8 @@ Created on Thu Mar 21 14:51:10 2024
 @author: 4vt
 """
 
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
+import traceback
 import os
 from copy import copy
 
@@ -83,28 +84,41 @@ def read_mzml(file):
     return ms1s
 
 # parse mzML files
-def process_psm(file):
-    ms1s = read_mzml(file)
-    results = []
-    no_extension = os.path.basename(file)[:-5]
-    subset_psms = [p for p in PSM_list if p.base_name == no_extension]
-    for p in subset_psms:
-        scan_idx = ms1s.bisect_left((p.scan,))
+def process_psm(psm):
+    if event.is_set():
+        return
+    try:
+        scan_idx = ms1s.bisect_left((psm.scan,))
         scans = ms1s[scan_idx - 3: scan_idx + 4]
-        p.parse_scans(scans)
-        results.append(p)
-    return results
+        psm.parse_scans(scans)
+        return psm
+    except:
+        traceback.print_exc()
+        event.set()    
 
 def process_spectrum_data(args, psms):
-    global PSM_list
     PSM_list = psms
+    result_psms = []
+    global ms1s
+    for mzml in args.mzml_files:
+        ms1s = read_mzml(mzml)
+        no_extension = os.path.splitext(mzml)[0]
+        subset_psms = [p for p in PSM_list if p.base_name == no_extension]
 
-    with Pool(args.parallel_mzml) as p:
-        result_psms = p.map(process_psm, args.mzml_files)
+        with Manager() as manager:
+            shared_event = manager.Event()
+            def init_worker(shared_event):
+                global event
+                event = shared_event
+
+            with Pool(args.cores,
+                      initializer=init_worker, 
+                      initargs=(shared_event,)) as p:
+                result_psms.extend(p.map(process_psm, subset_psms))
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
     
     #flatten results and filter bad psms
-    psms = [p for file in result_psms for p in file if p.is_useable()]
+    psms = [p for p in result_psms if p.is_useable()]
     args.logs.info(f'{len(psms)} PSMs have passed the initial usability filter.')
     return psms
 
