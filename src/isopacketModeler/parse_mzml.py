@@ -114,11 +114,8 @@ def process_spectrum_data(args, psms):
             with Pool(args.cores,
                       initializer=init_worker, 
                       initargs=(shared_event,)) as p:
-                result_psms.extend(p.map(process_psm, subset_psms))
+                result_psms.extend(p for p in p.map(process_psm, subset_psms) if p.is_useable())
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
-    
-    #flatten results and filter bad psms
-    psms = [p for p in result_psms if p.is_useable()]
     args.logs.info(f'{len(psms)} PSMs have passed the initial usability filter.')
-    return psms
+    return result_psms
 
