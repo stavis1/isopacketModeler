@@ -8,7 +8,6 @@ Created on Thu Mar 21 14:51:10 2024
 
 from multiprocessing import Pool, Manager
 import traceback
-import os
 from copy import copy
 
 import pandas as pd
@@ -33,10 +32,12 @@ def parse_PSMs(args):
     psm_data = pd.concat(psm_data)
 
     #remove PSMs without matching mzML files
-    ninit = psm_data.shape[0]
+    bad_psms = psm_data[[base_name(f) not in args.base_names for f in psm_data[column_map['file']]]]
     psm_data = psm_data[[base_name(f) in args.base_names for f in psm_data[column_map['file']]]]
-    if psm_data.shape[0] < ninit:
+    if bad_psms.shape[0]:
         args.logs.warn('There were PSMs without a corresponding spectrum file in the design document. These will be ignored.')
+        bad_files = [str(f) for f in set(bad_psms[column_map['file']])]
+        args.logs.debug('The filenames for these ignored PSMs are:\n' + '\n'.join(bad_files))
     
     #add arbitrary columns listed in the optios file as a metadata dictionary
     if len(args.PSM_headers) > 5:
@@ -104,7 +105,7 @@ def process_spectrum_data(args, psms):
         ms1s = read_mzml(mzml)
         no_extension = base_name(mzml)
         subset_psms = [p for p in PSM_list if p.base_name == no_extension]
-        args.logs.debug(f'There are {len(subset_psms)} PSMs in this subset')
+        args.logs.debug(f'There are {len(subset_psms)} PSMs in file {no_extension}')
 
         with Manager() as manager:
             shared_event = manager.Event()
