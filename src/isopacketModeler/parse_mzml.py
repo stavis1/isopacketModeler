@@ -102,8 +102,9 @@ def process_spectrum_data(args, psms):
     global ms1s
     for mzml in args.mzml_files:
         ms1s = read_mzml(mzml)
-        no_extension = os.path.splitext(mzml)[0]
+        no_extension = base_name(mzml)
         subset_psms = [p for p in PSM_list if p.base_name == no_extension]
+        args.logs.debug(f'There are {len(subset_psms)} PSMs in this subset')
 
         with Manager() as manager:
             shared_event = manager.Event()
@@ -116,6 +117,6 @@ def process_spectrum_data(args, psms):
                       initargs=(shared_event,)) as p:
                 result_psms.extend(p for p in p.map(process_psm, subset_psms) if p.is_useable())
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
-    args.logs.info(f'{len(psms)} PSMs have passed the initial usability filter.')
+    args.logs.info(f'{len(result_psms)} PSMs have passed the initial usability filter.')
     return result_psms
 

@@ -9,6 +9,7 @@ Created on Thu Mar 14 15:33:40 2024
 from functools import cache
 from copy import copy
 import re
+import os
 from collections import defaultdict
 
 import numpy as np
@@ -35,7 +36,7 @@ class hashabledict(dict):
         return hashabledict(newdict)
 
 def base_name(filename):
-    return re.search(r'\A(.+?)(?:\.[^\.]+)?\Z', filename).group(1)
+    return os.path.basename(os.path.splitext(filename)[0])
 
 @cache
 def isotope_packet(formula, charge):
