@@ -73,7 +73,7 @@ class BBRandomDisplacementBounds(object):
                        self.xmax)
         #this boundry limits the mean enrichment to >= 0.05
         #the a parameter must be second to last and the b parameter must be last
-        xnew[-1] = np.clip(xnew[-1], xnew[-2]/19, self.xmax[-1])
+        xnew[-2] = np.clip(xnew[-2], xnew[-1]/19, self.xmax[-2])
         return xnew
 
 class BetabinomQuiescentMix(DataGeneratingProcess):
