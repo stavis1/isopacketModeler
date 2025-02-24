@@ -25,7 +25,7 @@ class DataGeneratingProcess():
     def __init__(self, args):
         self.name = NotImplemented
         self.bounds = NotImplemented
-        #figure out how to pass initial guesses to get_x0
+        self.weights = 1
     
     def expected(self, peptide, params):
         raise NotImplementedError()
@@ -37,24 +37,35 @@ class DataGeneratingProcess():
         #winsorize at the 90th percentile
         q9 = np.nanquantile(resids, 0.9)
         resids[resids >= q9] = q9
-        return np.nanmean(resids)
+        return np.nansum(resids*self.weights)/np.nansum(self.weights)
     
     def get_x0(self, peptide):
         raise NotImplementedError()
     
     def extra_data(self, peptide, result):
         return {}
-
+    
     def fit(self, peptide):
         x_0 = self.get_x0(peptide)
         args = {'args':(peptide,), 
                 # 'method':'SLSQP',#'Powell', 
                 'bounds':self.bounds}
+        self.weights = 1
         result = basinhopping(self.loss, 
                               x_0,
                               T=2,
                               minimizer_kwargs = args,
                               take_step = self.take_step)
+        
+        #re-run fitting starting from previous best model but down-weight large residuals        
+        exp = self.expected(peptide, result.x)
+        self.weights = 1 - np.abs(exp[np.newaxis, :] - peptide.obs)
+        result = basinhopping(self.loss, 
+                              result.x,
+                              T=2,
+                              minimizer_kwargs = args,
+                              take_step = self.take_step,
+                              niter = 50)
         return results(self, peptide, result)
 
 class BBRandomDisplacementBounds(object):
@@ -80,7 +91,7 @@ class BetabinomQuiescentMix(DataGeneratingProcess):
     def __init__(self, args):
         super().__init__(args)
         self.name = 'BetabinomQuiescentMix'
-        self.bounds = [(0,1),
+        self.bounds = [(0.05,1),
                        (1,100),
                        (1,100)]
         self.take_step = BBRandomDisplacementBounds(self.bounds)
@@ -152,7 +163,7 @@ class BinomQuiescentMix(DataGeneratingProcess):
     def __init__(self, args):
         super().__init__(args)
         self.name = 'BinomQuiescentMix'
-        self.bounds = [(0,1),
+        self.bounds = [(0.05,1),
                        (0.1,1)]
         self.take_step = BinomRandomDisplacementBounds(self.bounds)
     
