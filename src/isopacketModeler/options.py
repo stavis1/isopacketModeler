@@ -10,7 +10,6 @@ from argparse import ArgumentParser
 import tomllib
 import os
 import logging
-import multiprocessing
 
 class InputError(Exception):
     pass
@@ -24,7 +23,10 @@ class options:
         self.find_mzml()
         self.parse_design()
         if self.cores < 1:
-            self.cores = os.cpu_count()
+            if 'SLURM_CPUS_PER_TASK' in os.environ.keys():
+                self.cores = int(os.environ['SLURM_CPUS_PER_TASK'])
+            else:
+                self.cores = os.cpu_count()
         if self.parallel_mzml < 1:
             self.parallel_mzml = self.cores
     
