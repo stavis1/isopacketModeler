@@ -12,7 +12,7 @@ from copy import copy
 
 import pandas as pd
 import numpy as np
-import pymzml
+import pyopenms as oms
 from sortedcontainers import SortedList
 
 from isopacketModeler.data_objects import psm, base_name
@@ -79,9 +79,14 @@ def initialize_psms(args, psm_data):
     return psms
 
 def read_mzml(file):
-    mzml = pymzml.run.Reader(file)
-    ms1s = SortedList([(s.ID,s) for s in mzml if s.ms_level == 1])
-    mzml.close()
+    od_exp = oms.OnDiscMSExperiment()
+    od_exp.openFile(file)
+    ms1s = []
+    for i in range(od_exp.getNrSpectra()):
+        spectrum = od_exp.getSpectrum(i)
+        if spectrum.getMSLevel() == 1:
+            ms1s.append((i, spectrum))
+    ms1s = SortedList(ms1s)
     return ms1s
 
 # parse mzML files

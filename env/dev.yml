@@ -1,20 +1,18 @@
 channels:
-- defaults
-- conda-forge
-- bioconda
-- anaconda
+  - conda-forge
+  - bioconda
 dependencies:
-- python==3.11.9
-- pip==24.0
-- numpy==1.26.4
-- dill==0.3.8
-- matplotlib==3.8.4
-- pandas==2.2.2
-- scipy==1.13.1
-- sortedcontainers==2.4.0
-- tensorflow-cpu==2.14.0
-- keras==2.14.0
-- pymzml==2.5.10
-- spyder==5.5.1
-- pip:
-  - brain-isotopic-distribution==1.5.17
+  - conda-forge::dill=0.3.9
+  - conda-forge::keras=2.14.0
+  - conda-forge::matplotlib=3.9.1
+  - conda-forge::numpy=1.23.5
+  - conda-forge::pandas=2.2.3
+  - conda-forge::pip=24.0
+  - bioconda::pyopenms=3.2.0
+  - conda-forge::python=3.11.9
+  - conda-forge::scipy=1.15.2
+  - conda-forge::sortedcontainers=2.4.0
+  - conda-forge::spyder=6.0.5
+  - conda-forge::tensorflow-cpu=2.14.0
+  - pip:
+    - brain-isotopic-distribution==1.5.17

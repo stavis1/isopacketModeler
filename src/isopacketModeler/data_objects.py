@@ -125,7 +125,7 @@ class psm:
         all_peaks = []
         all_errs = []
         for i,scan in scans:
-            peak_list = SortedList(zip(scan.mz, scan.i, strict = True))
+            peak_list = SortedList(zip(scan.get_mz_array(), scan.get_intensity_array(), strict = True))
             peaks = [self.mymin(peak_list, mz) for mz in self.mz]
             mz_errs = np.asarray([mz - p[0] for p,mz in zip(peaks,self.mz, strict = True)])
             all_errs.append(mz_errs)
