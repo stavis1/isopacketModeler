@@ -97,7 +97,7 @@ def process_psm(psm):
         scan_idx = ms1s.bisect_left((psm.scan,))
         scans = ms1s[scan_idx - 3: scan_idx + 4]
         psm.parse_scans(scans)
-        return psm
+        return psm if psm.is_useable() else None
     except:
         traceback.print_exc()
         event.set()    
@@ -121,7 +121,7 @@ def process_spectrum_data(args, psms):
             with Pool(args.cores,
                       initializer=init_worker, 
                       initargs=(shared_event,)) as p:
-                result_psms.extend(p for p in p.map(process_psm, subset_psms) if p.is_useable())
+                result_psms.extend(p for p in p.map(process_psm, subset_psms) if p is not None)
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
     args.logs.info(f'{len(result_psms)} PSMs have passed the initial usability filter.')
     return result_psms
