@@ -42,6 +42,11 @@ def base_name(filename):
 def isotope_packet(formula, charge):
     return np.array([p.intensity for p in isotopic_variants(formula, npeaks = 6, charge = charge)])
 
+class Scan:
+    def __init__(self, scan):
+        self.scan = int(re.search(r'scan=(\d+)', scan.getNativeID()).group(1))
+        self.mz, self.i = scan.get_peaks()
+
 class psm:
     def __init__(self,
                  raw_sequence,
@@ -125,7 +130,7 @@ class psm:
         all_peaks = []
         all_errs = []
         for i,scan in scans:
-            peak_list = SortedList(zip(scan.get_mz_array(), scan.get_intensity_array(), strict = True))
+            peak_list = SortedList(zip(scan.mz, scan.i, strict = True))
             peaks = [self.mymin(peak_list, mz) for mz in self.mz]
             mz_errs = np.asarray([mz - p[0] for p,mz in zip(peaks,self.mz, strict = True)])
             all_errs.append(mz_errs)

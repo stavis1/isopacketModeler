@@ -15,7 +15,7 @@ import numpy as np
 import pyopenms as oms
 from sortedcontainers import SortedList
 
-from isopacketModeler.data_objects import psm, base_name
+from isopacketModeler.data_objects import psm, base_name, Scan
 
 # parse PSM files into a list of data tuples
 def parse_PSMs(args):
@@ -85,8 +85,8 @@ def read_mzml(file):
     for i in range(od_exp.getNrSpectra()):
         spectrum = od_exp.getSpectrum(i)
         if spectrum.getMSLevel() == 1:
-            ms1s.append((i, spectrum))
-    ms1s = SortedList(ms1s)
+            ms1s.append(Scan(spectrum))
+    ms1s = SortedList(ms1s, key = lambda s: s.scan)
     return ms1s
 
 # parse mzML files
@@ -94,7 +94,7 @@ def process_psm(psm):
     if event.is_set():
         return
     try:
-        scan_idx = ms1s.bisect_left((psm.scan,))
+        scan_idx = ms1s.bisect_left(psm)
         scans = ms1s[scan_idx - 3: scan_idx + 4]
         psm.parse_scans(scans)
         return psm if psm.is_useable() else None
