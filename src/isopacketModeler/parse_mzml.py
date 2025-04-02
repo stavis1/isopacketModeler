@@ -9,6 +9,7 @@ Created on Thu Mar 21 14:51:10 2024
 from multiprocessing import Pool, Manager
 import traceback
 from copy import copy
+import sys
 
 import pandas as pd
 import numpy as np
@@ -122,6 +123,9 @@ def process_spectrum_data(args, psms):
                       initializer=init_worker, 
                       initargs=(shared_event,)) as p:
                 result_psms.extend(p for p in p.map(process_psm, subset_psms) if p is not None)
+                if event.is_set():
+                    args.logs.error(f'There was an error in the parsing of mzml file {mzml}.')
+                    sys.exit(1)
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
     args.logs.info(f'{len(result_psms)} PSMs have passed the initial usability filter.')
     return result_psms
