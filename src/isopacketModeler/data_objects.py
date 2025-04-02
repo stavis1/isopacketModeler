@@ -129,7 +129,7 @@ class psm:
     def parse_scans(self, scans):
         all_peaks = []
         all_errs = []
-        for i,scan in scans:
+        for scan in scans:
             peak_list = SortedList(zip(scan.mz, scan.i, strict = True))
             peaks = [self.mymin(peak_list, mz) for mz in self.mz]
             mz_errs = np.asarray([mz - p[0] for p,mz in zip(peaks,self.mz, strict = True)])
