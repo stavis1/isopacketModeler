@@ -44,9 +44,6 @@ AA_formulae = 'AA_formulae.tsv'
 #0 means all available cores
 cores = 0
 
-#The number of mzML files to parse in parallel. This is the most RAM intensive step. 0 sets this equal to cores.
-parallel_mzml = 0
-
 #The target false discovery rate for the isotope packet classifier
 classifier_fdr = 0.05
 
