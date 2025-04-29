@@ -16,3 +16,4 @@ dependencies:
   - conda-forge::tensorflow-cpu=2.14.0
   - pip:
     - brain-isotopic-distribution==1.5.17
+    - --editable=git+https://github.com/stavis1/isopacketModeler.git#egg=isopacketModeler
