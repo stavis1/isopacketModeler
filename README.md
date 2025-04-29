@@ -8,7 +8,7 @@ IsopacketModeler is a command line tool written in Python for identifying peptid
 1. Make sure you have a working conda installation. If conda is not installed please follow the instructions at this page: https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
 2. Download the repository as a .zip file from the green "<> Code" drop-down menu in the upper right of the GitHub page and extract the contents. Alternatively, if you have git installed run `git clone https://github.com/stavis1/isopacketModeler/`.
 3. On the command line navigate to the root of the downloaded directory and run `conda env create -n isopacketModeler -f env/run.yml`. This will create a conda environment and install the necessary dependencies for this tool.
-4. Run `conda activate isopacketModeler` to activate this environment then run `pip install .` to install IsopacketModeler into the active environment.
+4. Run `conda activate isopacketModeler` to activate this environment.
 
 ## Usage
 
