@@ -60,6 +60,14 @@ max_peptide_err = 0.015
 #Whether to do a preliminary classification for isotope enrichment. This massively speeds up searching.
 do_PSM_classification = true
 
+#If you have a previously terminated run it can be resumed from the checkpoint files.
+#Only load checkpoint files from the same step.
+checkpoint_files = []
+
+#If you wish to stop early put a checkpoint step here, otherwise this should be false.
+#step 1 is the end of file parsing.
+#step 2 is after PSM classification and peptide construction
+stopping_point = false
 
 
 
