@@ -27,6 +27,7 @@ class options:
                 self.cores = int(os.environ['SLURM_CPUS_PER_TASK'])
             else:
                 self.cores = os.cpu_count()
+        self.logs.debug(f'Now using {self.cores} cores.')
     
     def parse_args(self):
         parser = ArgumentParser()
