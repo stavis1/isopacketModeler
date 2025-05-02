@@ -17,6 +17,7 @@ class Checkpointer:
         self.checkpoints = options.checkpoint_files
         if self.checkpoints:
             self.load_step, self.data = self.load()
+            self.logs.info(f'Loaded checkpoint for step {self.load_step}.')
         else:
             self.load_step = 0
             self.data = None
@@ -25,6 +26,7 @@ class Checkpointer:
         steps = set()
         data = []
         for checkpoint_file in self.checkpoints:
+            self.logs.debug(f'Now loading checkpoint file {checkpoint_file}')
             with open(checkpoint_file, 'rb') as dillfile:
                 step, data_tmp = dill.load(dillfile)
             data.extend(data_tmp)
@@ -35,11 +37,13 @@ class Checkpointer:
         return next(s for s in steps), data
     
     def dump(self, data, step):
-        with open(f'{self.output_directory}checkpoint_step{step}_{os.getpid()}.dill', 'wb') as dillfile:
+        checkpoint_file = f'{self.output_directory}checkpoint_step{step}_{os.getpid()}.dill'
+        with open(checkpoint_file, 'wb') as dillfile:
             dill.dump((step, data), dillfile)
+        self.logs.info(f'Saved checkpoint for step {step} in file {checkpoint_file}.')
         
         if self.stopping_point == step:
-            self.logs.error(f'Now stopping at checkpoint step {step}.')
+            self.logs.info(f'Now stopping at checkpoint step {step}.')
             sys.exit(0)
     
     
