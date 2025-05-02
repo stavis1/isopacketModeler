@@ -44,9 +44,6 @@ AA_formulae = 'AA_formulae.tsv'
 #0 means all available cores
 cores = 0
 
-#The number of mzML files to parse in parallel. This is the most RAM intensive step. 0 sets this equal to cores.
-parallel_mzml = 0
-
 #This ssets the sensitivity of the filter for enriched isotopic packets.
 classifier_fdr = 0.05
 
@@ -62,3 +59,12 @@ max_peptide_err = 0.015
 
 #Whether to do a preliminary classification for isotope enrichment. This massively speeds up searching.
 do_PSM_classification = true
+
+#If you have a previously terminated run it can be resumed from the checkpoint files.
+#Only load checkpoint files from the same step.
+checkpoint_files = []
+
+#If you wish to stop early put a checkpoint step here, otherwise this should be false.
+#step 1 is the end of file parsing.
+#step 2 is after PSM classification and peptide construction
+stopping_point = false
