@@ -65,6 +65,9 @@ def initialize_psms(args, psm_data):
     
     #make duplicate control PSMs for each label used. This is for training the classifier model
     labels = sorted(set([l for l in args.design['label'] if l]))
+    if not labels:
+        args.logs.warning('No label elements were specified. Peptides will have both C[13] and N[15] patterns extracted. The classifier will fail.')
+        labels = ['C[13]', 'N[15]']
     controls = psm_data[np.logical_not(psm_data['is_labeled'])]
     labeled = psm_data[psm_data['is_labeled']]
     psm_data = [labeled]
