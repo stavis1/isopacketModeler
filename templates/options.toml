@@ -4,7 +4,7 @@ working_directory = './'
 #All results will be stored here, directory will be created if not extant
 output_directory = 'temp/'
 
-#If true any output files withing output_directory will be overwritten
+#If true any output files within output_directory will be overwritten
 overwrite = true
 
 #This sets the amount of information printed to the console
