@@ -8,6 +8,7 @@ Created on Wed Jul 24 11:29:53 2024
 
 from multiprocessing import Pool, Manager
 import traceback
+from threadpoolctl import threadpool_limits
 
 from isopacketModeler.data_generating_processes import BetabinomQuiescentMix, Betabinom, BinomQuiescentMix, Binom
 
@@ -29,10 +30,11 @@ class peptide_fit_conroller():
         if event.is_set():
             return
         try:
-            results = []
-            for DGP in self.DGPs:
-                results.append(DGP.fit(all_peptides[i]))
-            return results
+            with threadpool_limits(limits=1, user_api='blas'):
+                results = []
+                for DGP in self.DGPs:
+                    results.append(DGP.fit(all_peptides[i]))
+                return results
         except:
             traceback.print_exc()
             event.set()

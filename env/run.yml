@@ -13,6 +13,7 @@ dependencies:
   - conda-forge::scipy=1.15.2
   - conda-forge::sortedcontainers=2.4.0
   - conda-forge::tensorflow-cpu=2.14.0
+  - conda-forge::threadpoolctl=3.6.0
   - pip:
     - brain-isotopic-distribution==1.5.17
     - git+https://github.com/stavis1/isopacketModeler.git
