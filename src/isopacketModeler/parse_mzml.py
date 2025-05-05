@@ -95,25 +95,10 @@ def read_mzml(file):
 
 # parse mzML files
 def process_psm(psm):
-    if event.is_set():
-        return
-    try:
-        scan_idx = ms1s.bisect_left(psm)
-        scans = ms1s[scan_idx - 3: scan_idx + 4]
-        psm.parse_scans(scans)
-        return psm if psm.is_useable() else None
-    except AttributeError:
-        try:
-            scan_idx = ms1s.bisect_left(psm)
-            scans = ms1s[scan_idx - 3: scan_idx + 4]
-            psm.parse_scans(scans)
-            return psm if psm.is_useable() else None
-        except:
-            traceback.print_exc()
-            event.set()    
-    except:
-        traceback.print_exc()
-        event.set()    
+    scan_idx = ms1s.bisect_left(psm)
+    scans = ms1s[scan_idx - 3: scan_idx + 4]
+    psm.parse_scans(scans)
+    return psm if psm.is_useable() else None
 
 def process_spectrum_data(args, psms):
     PSM_list = psms
@@ -125,19 +110,9 @@ def process_spectrum_data(args, psms):
         subset_psms = [p for p in PSM_list if p.base_name == no_extension]
         args.logs.debug(f'There are {len(subset_psms)} PSMs in file {no_extension}')
 
-        with Manager() as manager:
-            shared_event = manager.Event()
-            def init_worker(shared_event):
-                global event
-                event = shared_event
-
-            with Pool(args.cores,
-                      initializer=init_worker, 
-                      initargs=(shared_event,)) as p:
-                result_psms.extend(p for p in p.map(process_psm, subset_psms) if p is not None)
-                if shared_event.is_set():
-                    args.logs.error(f'There was an error in the parsing of mzml file {mzml}.')
-                    sys.exit(1)
+        with Pool(args.cores) as p:
+            result_psms.extend(p for p in p.map(process_psm, subset_psms) if p is not None)
+            
     args.logs.debug('Intensity data for PSMs have been extracted from mzML files.')
     args.logs.info(f'{len(result_psms)} PSMs have passed the initial usability filter.')
     return result_psms
