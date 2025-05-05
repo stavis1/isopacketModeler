@@ -28,6 +28,7 @@ class options:
             else:
                 self.cores = os.cpu_count()
         self.logs.debug(f'Now using {self.cores} cores.')
+        self.parse_AA_formulae()
     
     def parse_args(self):
         parser = ArgumentParser()
@@ -112,3 +113,7 @@ class options:
         self.mzml_files = [f for f in self.mzml_files if os.path.basename(f)[:-5] in design_files]
         self.base_names = [f for f in self.base_names if f in design_files]
         
+    def parse_AA_formulae(self):
+        with open(self.AA_formulae, 'r') as tsv:
+            cols = tsv.readline().strip().split('\t')
+            self.AA_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:], strict = True)} for l in tsv}

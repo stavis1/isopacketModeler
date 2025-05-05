@@ -75,9 +75,6 @@ class psm:
         self.sequence = self.clean_seq(self.raw_sequence)
         self.base_name = base_name(self.file)
 
-        with open(self.AA_formulae, 'r') as tsv:
-            cols = tsv.readline().strip().split('\t')
-            self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:], strict = True)} for l in tsv}
         self.formula = self.calc_formula()
         self.mz = self.calc_mz()
         subformula = self.formula.omit(self.label_elm)
@@ -109,7 +106,7 @@ class psm:
         formula = defaultdict(lambda: 0)
         residues = re.findall(r'[^\[](?:\[[^\]]+\])?', self.sequence)
         for aa in residues:
-            for k,v in self.aa_formulae[aa].items():
+            for k,v in self.AA_formulae[aa].items():
                 formula[k] += v
         formula['H'] += 2
         formula['O'] += 1
