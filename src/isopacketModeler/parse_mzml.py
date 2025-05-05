@@ -102,6 +102,15 @@ def process_psm(psm):
         scans = ms1s[scan_idx - 3: scan_idx + 4]
         psm.parse_scans(scans)
         return psm if psm.is_useable() else None
+    except AttributeError:
+        try:
+            scan_idx = ms1s.bisect_left(psm)
+            scans = ms1s[scan_idx - 3: scan_idx + 4]
+            psm.parse_scans(scans)
+            return psm if psm.is_useable() else None
+        except:
+            traceback.print_exc()
+            event.set()    
     except:
         traceback.print_exc()
         event.set()    
