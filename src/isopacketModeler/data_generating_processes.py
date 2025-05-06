@@ -167,6 +167,13 @@ class BinomQuiescentMix(DataGeneratingProcess):
                        (0.1,1)]
         self.take_step = BinomRandomDisplacementBounds(self.bounds)
     
+    def extra_data(self, peptide, result):
+        frac, p = result.x
+        n = peptide.formula[peptide.label_elm]
+        mean = n*p
+        variance = n*p*(1-p)
+        return {'mean':mean, 'variance':variance}
+    
     def get_x0(self, peptide):
         return [0.5,0.5]
     
@@ -186,7 +193,14 @@ class Binom(DataGeneratingProcess):
         self.name = 'Binom'
         self.bounds = [(0,1)]
         self.take_step = BinomRandomDisplacementBounds(self.bounds)
-    
+
+    def extra_data(self, peptide, result):
+        p = result.x
+        n = peptide.formula[peptide.label_elm]
+        mean = n*p
+        variance = n*p*(1-p)
+        return {'mean':mean, 'variance':variance}
+     
     def get_x0(self, peptide):
         return [0.5]
     
