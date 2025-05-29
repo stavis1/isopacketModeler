@@ -100,7 +100,7 @@ class BetabinomQuiescentMix(DataGeneratingProcess):
         frac, a, b = result.x
         mean = a/(a+b)
         variance = (a*b)/(((a+b)**2)*(a+b+1))
-        return {'mean':mean, 'variance':variance}
+        return {'mean_label_probability':mean, 'variance':variance}
     
     def get_x0(self, peptide):
         return [0.5,4,3]
@@ -128,7 +128,7 @@ class Betabinom(DataGeneratingProcess):
         a, b = result.x
         mean = a/(a+b)
         variance = (a*b)/(((a+b)**2)*(a+b+1))
-        return {'mean':mean, 'variance':variance}
+        return {'mean_label_probability':mean, 'variance':variance}
     
     def get_x0(self, peptide):
         return [4,3]
@@ -170,9 +170,8 @@ class BinomQuiescentMix(DataGeneratingProcess):
     def extra_data(self, peptide, result):
         frac, p = result.x
         n = peptide.formula[peptide.label_elm]
-        mean = n*p
-        variance = n*p*(1-p)
-        return {'mean':mean, 'variance':variance}
+        variance = p*(1-p)
+        return {'mean_label_probability':p, 'variance':variance}
     
     def get_x0(self, peptide):
         return [0.5,0.5]
@@ -197,9 +196,8 @@ class Binom(DataGeneratingProcess):
     def extra_data(self, peptide, result):
         p = result.x
         n = peptide.formula[peptide.label_elm]
-        mean = n*p
-        variance = n*p*(1-p)
-        return {'mean':mean, 'variance':variance}
+        variance = p*(1-p)
+        return {'mean_label_probability':p, 'variance':variance}
      
     def get_x0(self, peptide):
         return [0.5]

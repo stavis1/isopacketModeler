@@ -16,6 +16,15 @@ data_generating_processes = {'BetabinomQuiescentMix':BetabinomQuiescentMix,
                              'BinomQuiescentMix':BinomQuiescentMix,
                              'Binom':Binom}
 
+natP = {'H[2]':0.00015,
+        'C[13]':0.011,
+        'N[15]':0.00366,
+        'O[17]':0.000308,
+        'O[18]':0.002,
+        'S[33]':0.0075,
+        'S[34]':0.0421,
+        'S[36]':0.0002}
+
 class peptide_fit_conroller():
     def __init__(self, args):
         self.args = args
@@ -36,6 +45,13 @@ class peptide_fit_conroller():
         except:
             traceback.print_exc()
             event.set()
+    
+    def prune_peptides(self, peptides):
+        #remove poorly fitting peptides
+        peptides = [p for p in peptides if p.canonical_fit.fit < self.args.max_peptide_err]
+        #remove peptides that look unenriched
+        peptides = [p for p in peptides if p.canonical_fit.mean_label_probability > (natP[p.label] + 0.01)]
+        return peptides
 
     def fit_peptides(self, peptides):
         self.args.logs.info('Peptide model fitting has started.')
@@ -60,7 +76,7 @@ class peptide_fit_conroller():
             self.model_selection(peptide)
         
         #prune poorly fitting peptides
-        peptides = [p for p in peptides if p.canonical_fit.fit < self.args.max_peptide_err]
+        peptides = self.prune_peptides(peptides)
         
         self.args.logs.info(f'Models have been fit to {len(peptides)} peptides.')
         return peptides
