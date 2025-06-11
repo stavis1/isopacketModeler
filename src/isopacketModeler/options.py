@@ -32,13 +32,49 @@ class options:
     
     def parse_args(self):
         parser = ArgumentParser()
-        parser.add_argument('-o', '--options', action = 'store', required = True,
-                            help = 'Path to options file.')
+        subparsers = parser.add_subparsers(help='Either specify options as a text file or as command line arguments.')
+        file_parser = subparsers.add_parser('file')
+        file_parser.add_argument('-o', '--options', action = 'store', required = True,
+                                 help = 'Path to options file.')
+
+        cmd_parser = subparsers.add_parser('cmd')
+        cmd_parser.add_argument('--working_directory', action = 'store', required = True,
+                                help = 'All paths should be relative to this directory')
+        cmd_parser.add_argument('--output_directory', action = 'store', required = True,
+                                help = 'Directory to store results')
+        cmd_parser.add_argument('--design_file', action = 'store', required = True,
+                                help = 'A TSV file defining experimental design; see README for details')
+        cmd_parser.add_argument('--mzml_dir', action = 'store', required = True,
+                                help = 'The top level directory under which all mzML files can be found')
+        cmd_parser.add_argument('--psms', action = 'append', required = True,
+                                help = 'Use once per file for all PSM files')
+        cmd_parser.add_argument('--psm_headers', action = 'store', required = True,
+                                help = 'a comma separated list of column names in the PSM files: e.g. sequence,mzml,scan#,charge,proteins')
+        cmd_parser.add_argument('--AA_formulae', action = 'store', required = True,
+                                help = 'The amino acid chemical formula file; see README for details')
+        cmd_parser.add_argument('--cores', action = 'store', required = False, default = 0, type = int,
+                                help = 'The maximum number of cores to use')
+        cmd_parser.add_argument('--classifier_fdr', action = 'store', required = False, default = 0.05, type = float,
+                                help = 'The false discovery rate target for the PSM classifier')
+        cmd_parser.add_argument('--data_generating_processes', action = 'append', required = True, choices = ['BetabinomQuiescentMix',
+			                                                                                                  'Betabinom',
+   		                                                                                                      'BinomQuiescentMix',
+                                                                                                              'Binom'],
+                                help = 'Which models to fit to peptide data')
+        cmd_parser.add_argument('--max_peptide_err', action = 'store', required = False, type = float, default = 0.015,
+                                help = 'Peptides with model fit error above this value will not be reported')
+        cmd_parser.add_argument('--do_PSM_classification', action = 'store_true', required=False, default=False,
+                                help = 'Whether to do a preliminary classification of isotope enrichment')
+        cmd_parser.add_argument('--checkpoint_files', action = 'append', required = False,
+                                help = 'Use once per checkpoint file, all checkpoints must be at the same step')
+        cmd_parser.add_argument('--stopping_point', action = 'store', required = False, default = False, type = int, choices = [1,2],
+                                help = 'What step to stop at if you wish to stop early')
         args = parser.parse_args()
         
         with open(args.options,'rb') as toml:
             options = tomllib.load(toml)
         self.__dict__.update(options)
+        self.__dict__.update({k:v for k,v in args.__dict__.items() if v is not None and not k.startswith('_')})
     
     def handle_working_directory(self):
         os.chdir(self.working_directory)
