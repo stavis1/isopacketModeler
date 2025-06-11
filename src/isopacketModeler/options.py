@@ -49,7 +49,7 @@ class options:
         cmd_parser.add_argument('--psms', action = 'append', required = True,
                                 help = 'Use once per file for all PSM files')
         cmd_parser.add_argument('--psm_headers', action = 'store', required = True,
-                                help = 'a comma separated list of column names in the PSM files: e.g. sequence,mzml,scan#,charge,proteins')
+                                help = 'A comma separated list of column names in the PSM files: e.g. sequence,mzml,scan#,charge,proteins')
         cmd_parser.add_argument('--AA_formulae', action = 'store', required = True,
                                 help = 'The amino acid chemical formula file; see README for details')
         cmd_parser.add_argument('--cores', action = 'store', required = False, default = 0, type = int,
@@ -60,7 +60,7 @@ class options:
 			                                                                                                  'Betabinom',
    		                                                                                                      'BinomQuiescentMix',
                                                                                                               'Binom'],
-                                help = 'Which models to fit to peptide data')
+                                help = 'Use once for each model to fit to peptide data')
         cmd_parser.add_argument('--max_peptide_err', action = 'store', required = False, type = float, default = 0.015,
                                 help = 'Peptides with model fit error above this value will not be reported')
         cmd_parser.add_argument('--do_PSM_classification', action = 'store_true', required=False, default=False,
@@ -120,7 +120,9 @@ class options:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)
             self.logs.error(msg)
             raise InputError()
-
+        if type(self.PSM_headers) == str:
+            self.PSM_headers = self.PSM_headers.split(',')
+            
     def find_mzml(self):
         mzml_files = [f for f in os.listdir(self.mzml_dir) if f.lower().endswith('.mzml')]
         self.mzml_files = [os.path.join(self.mzml_dir, f) for f in mzml_files]

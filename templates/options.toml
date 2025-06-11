@@ -33,7 +33,7 @@ PSM_headers = ['Annotated Sequence',
                'Charge', 
                'Protein Accessions']
 
-#The path to the TSV file which maps sinlge letter amino acid codes to molecular formulae
+#The path to the TSV file which maps single letter amino acid codes to molecular formulae
 #If you have modified amino acids please represent them as either single characters (any non whitespace character can be used)
 #or as the base amino acid followed by a bracketed modifier, e.g. S[79.9663]
 #Each modification should get its own row with the full molecular formula (not just the difference from the unmodified amino acid)
