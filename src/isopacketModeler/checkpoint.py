@@ -8,13 +8,19 @@ Created on Tue Apr 29 13:25:01 2025
 import os
 import sys
 import dill
+import glob
 
 class Checkpointer:
     def __init__(self, options):
         self.logs = options.logs
         self.output_directory = options.output_directory
         self.stopping_point = options.stopping_point
-        self.checkpoints = options.checkpoint_files
+        self.checkpoints = []
+        for file in options.checkpoint_files:
+            if '*' in file:
+                self.checkpoints.extend(glob.glob(file))
+            else:
+                self.checkpoints.append(file)
         if self.checkpoints:
             self.load_step, self.data = self.load()
             self.logs.info(f'Loaded checkpoint for step {self.load_step}.')
