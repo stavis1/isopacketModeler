@@ -54,6 +54,8 @@ class options:
                                 help = 'The amino acid chemical formula file; see README for details')
         cmd_parser.add_argument('--cores', action = 'store', required = False, default = 0, type = int,
                                 help = 'The maximum number of cores to use')
+        cmd_parser.add_argument('--overwrite', action = 'store_true', required = False, default = False,
+                                help = 'Whether to overwrite existing outputs')
         cmd_parser.add_argument('--classifier_fdr', action = 'store', required = False, default = 0.05, type = float,
                                 help = 'The false discovery rate target for the PSM classifier')
         cmd_parser.add_argument('--data_generating_processes', action = 'append', required = True, choices = ['BetabinomQuiescentMix',
