@@ -71,10 +71,12 @@ class options:
                                 help = 'What step to stop at if you wish to stop early')
         args = parser.parse_args()
         
-        with open(args.options,'rb') as toml:
-            options = tomllib.load(toml)
-        self.__dict__.update(options)
-        self.__dict__.update({k:v for k,v in args.__dict__.items() if v is not None and not k.startswith('_')})
+        if hasattr(args, 'options'):
+            with open(args.options,'rb') as toml:
+                options = tomllib.load(toml)
+            self.__dict__.update(options)
+        else:
+            self.__dict__.update({k:v for k,v in args.__dict__.items() if v is not None and not k.startswith('_')})
     
     def handle_working_directory(self):
         os.chdir(self.working_directory)
