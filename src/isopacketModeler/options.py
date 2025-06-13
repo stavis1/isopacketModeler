@@ -44,6 +44,10 @@ class options:
                                 help = 'Directory to store results')
         cmd_parser.add_argument('--design_file', action = 'store', required = True,
                                 help = 'A TSV file defining experimental design; see README for details')
+        cmd_parser.add_argument('--log_level', action = 'store', required = False, default = 50,
+                                help = 'The amount of information to print to console; 10 displays the most information while 50 silences console logging')
+        cmd_parser.add_argument('--log_file', action = 'store', required = False, default = 'IsopacketModeler.log',
+                                help = 'The name of the log file.')
         cmd_parser.add_argument('--mzml_dir', action = 'store', required = True,
                                 help = 'The top level directory under which all mzML files can be found')
         cmd_parser.add_argument('--psms', action = 'append', required = True,
