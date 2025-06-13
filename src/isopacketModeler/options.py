@@ -54,7 +54,7 @@ class options:
                                 help = 'Use once per file for all PSM files')
         cmd_parser.add_argument('--psm_headers', action = 'store', required = True,
                                 help = 'A comma separated list of column names in the PSM files: e.g. sequence,mzml,scan#,charge,proteins')
-        cmd_parser.add_argument('--AA_formulae', action = 'store', required = True,
+        cmd_parser.add_argument('--aa_formulae', action = 'store', required = True,
                                 help = 'The amino acid chemical formula file; see README for details')
         cmd_parser.add_argument('--cores', action = 'store', required = False, default = 0, type = int,
                                 help = 'The maximum number of cores to use')
@@ -118,11 +118,11 @@ class options:
                     'mzml_dir',
                     'psms',
                     'cores',
-                    'AA_formulae',
-                    'PSM_headers',
+                    'aa_formulae',
+                    'psm_headers',
                     'data_generating_processes',
                     'max_peptide_err',
-                    'do_PSM_classification']
+                    'do_psm_classification']
         problems = [r for r in required if not r in self.__dict__.keys()]
         if problems:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)

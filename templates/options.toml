@@ -27,7 +27,7 @@ psms = ['PSMs.txt']
 #peptide sequence, mzml file, scan #, charge, protein names, any other metadata you wish tracked
 #Column names must be listed in the above order regardless of their order in the PSM file.
 #The defaults listed here work for Proteome Discoverer PSM files.
-PSM_headers = ['Annotated Sequence',
+psm_headers = ['Annotated Sequence',
                'Spectrum File', 
                'First Scan',
                'Charge', 
@@ -38,7 +38,7 @@ PSM_headers = ['Annotated Sequence',
 #or as the base amino acid followed by a bracketed modifier, e.g. S[79.9663]
 #Each modification should get its own row with the full molecular formula (not just the difference from the unmodified amino acid)
 #If you need elements not listed in the default file add a column with their elemental symbol as the header
-AA_formulae = 'AA_formulae.tsv'
+aa_formulae = 'AA_formulae.tsv'
 
 #The allowed number of CPU cores to use
 #0 means all available cores
