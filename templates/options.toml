@@ -58,7 +58,7 @@ data_generating_processes = ['BetabinomQuiescentMix',
 max_peptide_err = 0.015
 
 #Whether to do a preliminary classification for isotope enrichment. This massively speeds up searching.
-do_PSM_classification = true
+do_psm_classification = true
 
 #If you have a previously terminated run it can be resumed from the checkpoint files.
 #Only load checkpoint files from the same step.
