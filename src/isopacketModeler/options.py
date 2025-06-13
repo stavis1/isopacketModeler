@@ -160,6 +160,6 @@ class options:
         self.base_names = [f for f in self.base_names if f in design_files]
         
     def parse_AA_formulae(self):
-        with open(self.AA_formulae, 'r') as tsv:
+        with open(self.aa_formulae, 'r') as tsv:
             cols = tsv.readline().strip().split('\t')
-            self.AA_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:], strict = True)} for l in tsv}
+            self.aa_formulae = {l.split('\t')[0]:{e:int(c) for e,c in zip(cols[1:],l.strip().split('\t')[1:], strict = True)} for l in tsv}
