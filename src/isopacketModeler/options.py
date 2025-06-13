@@ -128,8 +128,8 @@ class options:
             msg = 'Required settings not found in options file:\n' + '\n'.join(problems)
             self.logs.error(msg)
             raise InputError()
-        if type(self.PSM_headers) == str:
-            self.PSM_headers = self.PSM_headers.split(',')
+        if type(self.psm_headers) == str:
+            self.psm_headers = self.psm_headers.split(',')
             
     def find_mzml(self):
         mzml_files = [f for f in os.listdir(self.mzml_dir) if f.lower().endswith('.mzml')]

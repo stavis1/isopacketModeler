@@ -29,7 +29,7 @@ elif checkpointer.load_step == 1:
 #Filter out unenriched PSMs.
 if checkpointer.load_step < 2:
     bad_psms = []
-    if args.do_PSM_classification:
+    if args.do_psm_classification:
         psm_classifier = classifier(args)
         psm_data, psm_labels = psm_classifier.preprocess(psms)
         psm_classifier.fit(psm_data, psm_labels)

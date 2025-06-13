@@ -70,7 +70,7 @@ class psm:
         self.label = label
         self.label_elm = re.search(r'[A-Z][a-z]?', label).group()
         self.is_labeled = is_labeled
-        self.AA_formulae = args.AA_formulae
+        self.aa_formulae = args.aa_formulae
         
         self.sequence = self.clean_seq(self.raw_sequence)
         self.base_name = base_name(self.file)
@@ -106,7 +106,7 @@ class psm:
         formula = defaultdict(lambda: 0)
         residues = re.findall(r'[^\[](?:\[[^\]]+\])?', self.sequence)
         for aa in residues:
-            for k,v in self.AA_formulae[aa].items():
+            for k,v in self.aa_formulae[aa].items():
                 formula[k] += v
         formula['H'] += 2
         formula['O'] += 1

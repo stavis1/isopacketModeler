@@ -25,7 +25,7 @@ def parse_PSMs(args):
                     'scan',
                     'charge', 
                     'proteinIds']
-    column_map = {n:c for n,c in zip(column_names, args.PSM_headers[:len(column_names)], strict = True)}
+    column_map = {n:c for n,c in zip(column_names, args.psm_headers[:len(column_names)], strict = True)}
     
     psm_data = []
     for file in args.psms:
@@ -41,14 +41,14 @@ def parse_PSMs(args):
         args.logs.debug('The filenames for these ignored PSMs are:\n' + '\n'.join(bad_files))
     
     #add arbitrary columns listed in the optios file as a metadata dictionary
-    if len(args.PSM_headers) > 5:
-        psm_metadata = [{k:v for k,v in zip(d[1].keys(), d[1].values, strict = True)} for d in psm_data[args.PSM_headers[5:]].iterrows()]
+    if len(args.psm_headers) > 5:
+        psm_metadata = [{k:v for k,v in zip(d[1].keys(), d[1].values, strict = True)} for d in psm_data[args.psm_headers[5:]].iterrows()]
     else:
         psm_metadata = [{}]*psm_data.shape[0]
     psm_data['psm_metadata'] = psm_metadata
     
     #subset the dataframe to only the columns we use
-    psm_data = psm_data[args.PSM_headers[:5] + ['psm_metadata']]
+    psm_data = psm_data[args.psm_headers[:5] + ['psm_metadata']]
     psm_data.columns = ['raw_sequence', 'file', 'scan', 'charge', 'proteins', 'psm_metadata']
     return psm_data
 
