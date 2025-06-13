@@ -69,7 +69,7 @@ class options:
                                 help = 'Use once for each model to fit to peptide data')
         cmd_parser.add_argument('--max_peptide_err', action = 'store', required = False, type = float, default = 0.015,
                                 help = 'Peptides with model fit error above this value will not be reported')
-        cmd_parser.add_argument('--do_PSM_classification', action = 'store_true', required=False, default=False,
+        cmd_parser.add_argument('--do_psm_classification', action = 'store_true', required=False, default=False,
                                 help = 'Whether to do a preliminary classification of isotope enrichment')
         cmd_parser.add_argument('--checkpoint_files', action = 'append', required = False,
                                 help = 'Use once per checkpoint file, all checkpoints must be at the same step')
