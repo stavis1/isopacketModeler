@@ -43,9 +43,9 @@ class Checkpointer:
         return next(s for s in steps), data
     
     def dump(self, data, step):
-        checkpoint_file = f'{self.output_directory}checkpoint_step{step}_{os.getpid()}.dill'
+        checkpoint_file = f'{self.output_directory}checkpoint_step{step}_{str(hash(str(data))%9999) + str(os.getpid())}.dill'
         with open(checkpoint_file, 'wb') as dillfile:
-            dill.dump((step, data), dillfile)
+                dill.dump((step, data), dillfile)
         self.logs.info(f'Saved checkpoint for step {step} in file {checkpoint_file}.')
         
         if self.stopping_point == step:

@@ -83,6 +83,9 @@ class psm:
         self.unenriched = np.concatenate((unenriched, np.zeros(len(self.mz)-len(unenriched))))
         return
     
+    def __repr__(self):
+        return repr(self.__dict__)
+    
     def clean_seq(self, seq):
         #The regex excludes non bracket characters at the beginning or end of the string that are demarcated from 
         #the middle with a period, e.g. T.ES.T -> ES, this allows it to work with Proteome discoverer annotated sequences.
@@ -170,6 +173,9 @@ class peptide:
         self.fit_results = []
         self.canonical_fit = None
 
+    def __repr__(self):
+        return repr(self.__dict__)
+    
     def clean(self, vals):
         vals = copy(vals)
         #remove singletons
