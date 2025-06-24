@@ -107,6 +107,7 @@ class classifier():
             interp_mz = interp_mz/np.nansum(interp_mz)
             data.append(np.concatenate((interp_i[np.newaxis,:,np.newaxis],interp_mz[np.newaxis,:,np.newaxis]), axis = 2))
         data = np.concatenate(data, axis = 0)
+        data = np.expand_dims(data, -1)
         labels = np.array([psm.is_labeled for psm in psms])
         return (data, labels)
     
