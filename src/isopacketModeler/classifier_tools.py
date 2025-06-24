@@ -52,7 +52,7 @@ class classifier():
         return model
 
     def _fit_one_step(self, X, y, epochs = 7):
-        with tf.compat.v1.Session(config = self.config):
+        with tf.compat.v1.Session(config = self.tf_config):
             self.model = self._get_model()
             history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
             for key in history.history:
