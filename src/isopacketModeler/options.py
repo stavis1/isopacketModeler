@@ -23,8 +23,8 @@ class options:
         self.find_mzml()
         self.parse_design()
         if self.cores < 1:
-            if 'SLURM_CPUS_PER_TASK' in os.environ.keys():
-                self.cores = int(os.environ['SLURM_CPUS_PER_TASK'])
+            if 'SLURM_JOB_CPUS_PER_NODE' in os.environ.keys():
+                self.cores = int(os.environ['SLURM_JOB_CPUS_PER_NODE'])
             else:
                 self.cores = os.cpu_count()
         self.logs.debug(f'Now using {self.cores} cores.')
