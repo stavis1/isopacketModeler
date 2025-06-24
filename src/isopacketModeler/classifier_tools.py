@@ -26,7 +26,7 @@ class classifier():
         self.cutoff = np.nan
         self.rng = np.random.default_rng(1)
         self.history = defaultdict(lambda : [])
-        self.tf_config = tf.ConfigProto(device_count={"CPU": args.cores})
+        self.tf_config = tf.compat.v1.ConfigProto(device_count={"CPU": args.cores})
 
     def _get_model(self):
         if 'model' in self.__dict__.keys():
