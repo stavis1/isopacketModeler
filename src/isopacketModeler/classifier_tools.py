@@ -26,7 +26,8 @@ class classifier():
         self.cutoff = np.nan
         self.rng = np.random.default_rng(1)
         self.history = defaultdict(lambda : [])
-        self.tf_config = tf.compat.v1.ConfigProto(device_count={"CPU": args.cores})
+        tf.config.threading.set_intra_op_parallelism_threads(args.cores)
+        tf.config.threading.set_inter_op_parallelism_threads(args.cores)
 
     def _get_model(self):
         if 'model' in self.__dict__.keys():
@@ -52,13 +53,12 @@ class classifier():
         return model
 
     def _fit_one_step(self, X, y, epochs = 7):
-        with tf.compat.v1.Session(config = self.tf_config):
-            self.model = self._get_model()
-            history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
-            for key in history.history:
-                self.history[key].extend(history.history[key])
-            self.history['epochs'].append(epochs)
-            return self
+        self.model = self._get_model()
+        history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
+        for key in history.history:
+            self.history[key].extend(history.history[key])
+        self.history['epochs'].append(epochs)
+        return self
 
     def _set_cutoff(self, targets, decoys):
         ndecoy = len(decoys)
@@ -107,7 +107,7 @@ class classifier():
             interp_mz = interp_mz/np.nansum(interp_mz)
             data.append(np.concatenate((interp_i[np.newaxis,:,np.newaxis],interp_mz[np.newaxis,:,np.newaxis]), axis = 2))
         data = np.concatenate(data, axis = 0)
-        data = np.expand_dims(data, -1)
+        # data = np.expand_dims(data, -1)
         labels = np.array([psm.is_labeled for psm in psms])
         return (data, labels)
     
