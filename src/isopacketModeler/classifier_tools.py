@@ -26,6 +26,7 @@ class classifier():
         self.cutoff = np.nan
         self.rng = np.random.default_rng(1)
         self.history = defaultdict(lambda : [])
+        self.tf_config = tf.ConfigProto(device_count={"CPU": args.cores})
 
     def _get_model(self):
         if 'model' in self.__dict__.keys():
@@ -51,12 +52,13 @@ class classifier():
         return model
 
     def _fit_one_step(self, X, y, epochs = 7):
-        self.model = self._get_model()
-        history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
-        for key in history.history:
-            self.history[key].extend(history.history[key])
-        self.history['epochs'].append(epochs)
-        return self
+        with tf.Session(config = self.config):
+            self.model = self._get_model()
+            history = self.model.fit(X, y.reshape((-1,1)), epochs=epochs)
+            for key in history.history:
+                self.history[key].extend(history.history[key])
+            self.history['epochs'].append(epochs)
+            return self
 
     def _set_cutoff(self, targets, decoys):
         ndecoy = len(decoys)
